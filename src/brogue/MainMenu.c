@@ -396,10 +396,6 @@ static void chooseGameVariant() {
 
     snprintf(textBuf, TEXT_MAX_LENGTH, "%sBrogue%s\n", goldColorEscape, whiteColorEscape);
     append(textBuf, "Classic Brogue. The endlessly captivating masterpiece of dungeon adventuring.\n\n", TEXT_MAX_LENGTH);
-
-    snprintf(tmpBuf, TEXT_MAX_LENGTH, "%sSpeed Brogue%s\n", goldColorEscape, whiteColorEscape);
-    append(textBuf, tmpBuf, TEXT_MAX_LENGTH);
-    append(textBuf, "Feel the need for speed? It's Classic Brogue but half as long!\n\n", TEXT_MAX_LENGTH);
     
     snprintf(tmpBuf, TEXT_MAX_LENGTH, "%sRapid Brogue%s\n", goldColorEscape, whiteColorEscape);
     append(textBuf, tmpBuf, TEXT_MAX_LENGTH);
@@ -409,14 +405,13 @@ static void chooseGameVariant() {
     append(textBuf, tmpBuf, TEXT_MAX_LENGTH);
     append(textBuf, "No time? Death wish? Bullet Brogue is for you. Not best for new players!\n\n", TEXT_MAX_LENGTH);
 
-    brogueButton buttons[4];
+    brogueButton buttons[3];
     initializeMainMenuButton(&(buttons[0]), "  %sR%sapid Brogue     ", 'r', 'R', NG_NOTHING);
     initializeMainMenuButton(&(buttons[1]), "     %sB%srogue        ", 'b', 'B', NG_NOTHING);
     initializeMainMenuButton(&(buttons[2]), "   Bu%sl%slet Brogue   ", 'l', 'L', NG_NOTHING);
-    initializeMainMenuButton(&(buttons[3]), "   %sS%speed Brogue    ", 's', 'S', NG_NOTHING);
     
     const SavedDisplayBuffer rbuf = saveDisplayBuffer();
-    gameVariantChoice = printTextBox(textBuf, 20, 7, 45, &white, &black, buttons, 4);
+    gameVariantChoice = printTextBox(textBuf, 20, 7, 45, &white, &black, buttons, 3);
     restoreDisplayBuffer(&rbuf);
 
     if (gameVariantChoice == 0) {
@@ -425,8 +420,6 @@ static void chooseGameVariant() {
         gameVariant = VARIANT_BROGUE;
     } else if (gameVariantChoice == 2) {
         gameVariant = VARIANT_BULLET_BROGUE;
-    } else if (gameVariantChoice == 3) {
-        gameVariant = VARIANT_SPEED_BROGUE;
     } else {
         rogue.nextGame = NG_NOTHING;
     }
