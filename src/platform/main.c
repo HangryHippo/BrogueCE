@@ -39,7 +39,7 @@ static void printCommandlineHelp() {
 #ifdef BROGUE_CURSES
     "--term         -t          run in ncurses-based terminal mode\n"
 #endif
-    "--variant variant_name     run a variant game (options: speed_brogue, rapid_brogue, bullet_brogue)\n"
+    "--variant variant_name     run a variant game (options: rapid_brogue, bullet_brogue)\n"
     "--stealth      -S          display stealth range\n"
     "--no-effects   -E          disable color effects\n"
     "--wizard       -W          run in wizard mode, invincible with powerful items\n"
@@ -173,9 +173,6 @@ int main(int argc, char *argv[])
 
         if (strcmp(argv[i], "--variant") == 0) {
             if (i + 1 < argc) {
-                if (!strcmp("speed_brogue", argv[i + 1])) {
-                    gameVariant = VARIANT_SPEED_BROGUE;
-                }
                 if (!strcmp("rapid_brogue", argv[i + 1])) {
                     gameVariant = VARIANT_RAPID_BROGUE;
                 }
