@@ -198,6 +198,7 @@ typedef struct windowpos {
 // variants supported in this code base
 enum gameVariant {
     VARIANT_BROGUE,
+    VARIANT_SPEED_BROGUE,
     VARIANT_RAPID_BROGUE,
     VARIANT_BULLET_BROGUE,
     NUMBER_VARIANTS
