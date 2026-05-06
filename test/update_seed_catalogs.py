@@ -27,7 +27,9 @@ def main():
 
     # Create the seed catalog files used in the compare test runner
     create_brogue_seed_catalog_file('test/seed_catalogs/seed_catalog_brogue.txt', None, 40)
+    # create_brogue_seed_catalog_file('test/seed_catalogs/seed_catalog_speed_brogue.txt', "--variant speed_brogue", 20)
     create_brogue_seed_catalog_file('test/seed_catalogs/seed_catalog_rapid_brogue.txt', "--variant rapid_brogue", 10)
+    # create_brogue_seed_catalog_file('test/seed_catalogs/seed_catalog_bullet_brogue.txt', "--variant bullet_brogue", 5)
 
 if __name__ == '__main__':
     main()
