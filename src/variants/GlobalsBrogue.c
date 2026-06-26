@@ -1041,6 +1041,11 @@ const gameConstants brogueGameConst = {
     .armorDelayToAutoID = 1000,
     .ringDelayToAutoID = 1500,
 
+    // Hold-ID reward rate measured in turns. Feel free to adjust.
+    // 3200-3300 is a guess at the expected number of turns per DM potion.
+    // 0 = disable Hold-ID entirely.
+    .itemDelayToAutoDM = 3400,
+
     .fallDamageMin = 8,
     .fallDamageMax = 10,
 
