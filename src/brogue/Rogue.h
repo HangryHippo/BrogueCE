@@ -1401,6 +1401,7 @@ typedef struct item {
     randomRange damage;
     short armor;
     short charges;
+	short detectMagicTimer;
     short enchant1;
     short enchant2;
     short timesEnchanted;
@@ -2404,6 +2405,7 @@ typedef struct gameConstants {
     const int weaponKillsToAutoID;                  // number of kills until unknown weapon is IDed
     const int armorDelayToAutoID;                   // number of turns until unknown armor is IDed
     const int ringDelayToAutoID;                    // number of turns until unknown ring is IDed
+	const int itemDelayToAutoDM;					// number of turns until unknown item is DMed
 
     const int numberAutogenerators;                 // size of autoGeneratorCatalog table
     const int numberBoltKinds;                      // size of boltKinds table
