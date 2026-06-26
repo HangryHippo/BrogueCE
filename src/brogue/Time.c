@@ -1801,6 +1801,35 @@ static void processIncrementalAutoID() {
         }
     }
 }
+    
+// Hold-ID: polarity and turn counter based. Also prevents healscumming, and a paralysis loophole is closed.
+static void processIncrementalAutoDM() {
+    
+    for (item *theItem = packItems->nextItem; theItem != NULL; theItem = theItem->nextItem) {
+        if (theItem->category & (WEAPON | ARMOR | RING)) {
+            if (!(theItem->flags & ITEM_MAGIC_DETECTED) && (theItem->detectMagicTimer > 0) && (player.status[STATUS_NUTRITION] > 0) && !(player.status[STATUS_PARALYZED])) {
+
+                theItem->detectMagicTimer--;
+                if (theItem->detectMagicTimer <= 0) {
+    	            theItem->flags |= ITEM_MAGIC_DETECTED;
+                    
+                    int theItemPolarity = itemMagicPolarity(theItem);
+    	            if (theItemPolarity == 0) {
+    	                if ((theItem->category & (WEAPON | ARMOR)) && (theItem->enchant1 == 0) && !(theItem->flags & ITEM_RUNIC)) {
+    	                    identify(theItem);
+    	                }
+    	            message("you have sensed that an item in your pack bears no intrinsic enchantment", 0);
+    	            } else if (theItemPolarity == 1){
+    	                message("you have sensed that an item in your pack has an aura of benevolent magic", 0);
+    	            } else {
+    	                message("you have sensed that an item in your pack has an aura of malevolent magic", 0);
+    	            }
+    	        }
+    	
+    	    }
+        }
+    }
+}
 
 short staffChargeDuration(const item *theItem) {
     // staffs of blinking and obstruction recharge half as fast so they're less powerful
@@ -2392,6 +2421,7 @@ void playerTurnEnded() {
                 // stuff that happens periodically according to an objective time measurement goes here:
                 rechargeItemsIncrementally(1); // staffs recharge every so often
                 processIncrementalAutoID();   // become more familiar with worn armor and rings
+                processIncrementalAutoDM(); // slowly sense the polarity of armor, weapons, and rings held
                 rogue.monsterSpawnFuse--; // monsters spawn in the level every so often
 
                 for (creatureIterator it = iterateCreatures(monsters); hasNextCreature(it);) {
