@@ -1055,6 +1055,11 @@ const gameConstants bulletBrogueGameConst = {
     .armorDelayToAutoID = 120,
     .ringDelayToAutoID = 120,
 
+    // Hold-ID reward rate measured in turns.
+    // 0 = disable Hold-ID entirely.
+    .itemDelayToAutoDM = 425,
+
+
     .fallDamageMin = 8,
     .fallDamageMax = 10,
 
