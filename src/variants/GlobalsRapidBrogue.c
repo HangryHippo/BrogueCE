@@ -1045,6 +1045,10 @@ const gameConstants rapidBrogueGameConst = {
     .armorDelayToAutoID = 250,
     .ringDelayToAutoID = 250,
 
+    // Hold-ID reward rate measured in turns. Feel free to adjust.
+    // 0 = disable Hold-ID entirely.
+    .itemDelayToAutoDM = 850,
+
     .fallDamageMin = 8,
     .fallDamageMax = 10,
 
