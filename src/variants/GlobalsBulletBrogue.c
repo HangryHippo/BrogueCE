@@ -1056,8 +1056,9 @@ const gameConstants bulletBrogueGameConst = {
     .ringDelayToAutoID = 120,
 
     // Hold-ID reward rate measured in turns.
-    // 0 = disable Hold-ID entirely.
-    .itemDelayToAutoDM = 425,
+    // 0 = disable Hold-ID locally for the variant and difficulty.
+    .itemDelayToAutoDetectMagicNormal = 400,
+    .itemDelayToAutoDetectMagicEasy = 150,
 
 
     .fallDamageMin = 8,
