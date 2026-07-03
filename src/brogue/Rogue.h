@@ -2405,7 +2405,8 @@ typedef struct gameConstants {
     const int weaponKillsToAutoID;                  // number of kills until unknown weapon is IDed
     const int armorDelayToAutoID;                   // number of turns until unknown armor is IDed
     const int ringDelayToAutoID;                    // number of turns until unknown ring is IDed
-	const int itemDelayToAutoDM;					// number of turns until unknown item is DMed
+	const int itemDelayToAutoDetectMagicNormal;		// number of turns until unknown item is DMed in normal mode
+	const int itemDelayToAutoDetectMagicEasy;		// number of turns until unknown item is DMed in easy mode
 
     const int numberAutogenerators;                 // size of autoGeneratorCatalog table
     const int numberBoltKinds;                      // size of boltKinds table
