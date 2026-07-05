@@ -177,15 +177,16 @@ boolean itemIsPositivelyEnchanted(const item *theItem) {
 }
 
 // Sets different detect magic reward rates according to difficulty
-// Comment out the conditional check and simply return 0 in order to
-// disable holdID globally across all variants and difficulties
 int itemDelayToAutoDetectMagicDifficulty() {
+// uncomment/recomment the line below in order to disable/enable holdID globally for all variants and difficulties
+// return 0;
+	
     if (rogue.mode == GAME_MODE_NORMAL) {
         return gameConst->itemDelayToAutoDetectMagicNormal;
     } else if (rogue.mode == GAME_MODE_EASY) {
     	return gameConst->itemDelayToAutoDetectMagicEasy;
-  	} else {
-    	return 0; // i.e. wizard mode
+  	} else {	// i.e. wizard mode
+    	return 0;
   	}
 }
 
