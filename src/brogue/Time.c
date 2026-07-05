@@ -1802,7 +1802,8 @@ static void processIncrementalAutoID() {
     }
 }
     
-// Hold-ID: polarity and turn counter based. Also prevents healscumming, and a paralysis loophole is closed.
+// Hold-ID: polarity and turn counter based. Limited to equippables. 
+// A safeguard is placed against grindy healscumming, and a paralysis loophole is closed.
 static void processIncrementalAutoDM() {
     
     for (item *theItem = packItems->nextItem; theItem != NULL; theItem = theItem->nextItem) {
