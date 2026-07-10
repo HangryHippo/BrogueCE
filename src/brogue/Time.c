@@ -1802,18 +1802,21 @@ static void processIncrementalAutoID() {
     }
 }
     
-// Hold-ID: polarity and turn counter based. Limited to equippables. 
-// A safeguard is placed against grindy healscumming, and a paralysis loophole is closed.
+// Hold-ID: polarity and turn counter based.
 static void processIncrementalAutoDM() {
-    
+    // A safeguard is placed against grindy healscumming, and a paralysis loophole is closed.
+    if ((player.status[STATUS_NUTRITION] <= 0) || (player.status[STATUS_PARALYZED])) {
+        return;
+    }
+
+    // Limited to equippables.
     for (item *theItem = packItems->nextItem; theItem != NULL; theItem = theItem->nextItem) {
         if (theItem->category & (WEAPON | ARMOR | RING)) {
-            if (!(theItem->flags & ITEM_MAGIC_DETECTED) && (theItem->detectMagicTimer > 0) && (player.status[STATUS_NUTRITION] > 0) && !(player.status[STATUS_PARALYZED])) {
-
+            if (!(theItem->flags & ITEM_MAGIC_DETECTED) && (theItem->detectMagicTimer > 0)) {
                 theItem->detectMagicTimer--;
                 if (theItem->detectMagicTimer <= 0) {
     	            theItem->flags |= ITEM_MAGIC_DETECTED;
-                    
+                    // Detect magic messages
                     int theItemPolarity = itemMagicPolarity(theItem);
     	            if (theItemPolarity == 0) {
     	                if ((theItem->category & (WEAPON | ARMOR)) && (theItem->enchant1 == 0) && !(theItem->flags & ITEM_RUNIC)) {
@@ -1826,7 +1829,6 @@ static void processIncrementalAutoDM() {
     	                message("you have sensed that an item in your pack has an aura of malevolent magic", 0);
     	            }
     	        }
-    	
     	    }
         }
     }
