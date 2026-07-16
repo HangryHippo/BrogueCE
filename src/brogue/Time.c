@@ -1811,9 +1811,8 @@ static void processIncrementalAutoDM() {
 
     // Limited to equippables.
     for (item *theItem = packItems->nextItem; theItem != NULL; theItem = theItem->nextItem) {
-        if (theItem->category & (WEAPON | ARMOR | RING)) {
-            if (!(theItem->flags & ITEM_MAGIC_DETECTED) && (theItem->detectMagicTimer > 0)) {
-                theItem->detectMagicTimer--;
+        if ((theItem->category & (WEAPON | ARMOR | RING)) && !(theItem->flags & ITEM_MAGIC_DETECTED) && (theItem->detectMagicTimer > 0)) {
+            theItem->detectMagicTimer--;
                 if (theItem->detectMagicTimer <= 0) {
     	            theItem->flags |= ITEM_MAGIC_DETECTED;
                     // Detect magic messages
@@ -1822,15 +1821,14 @@ static void processIncrementalAutoDM() {
     	                if ((theItem->category & (WEAPON | ARMOR)) && (theItem->enchant1 == 0) && !(theItem->flags & ITEM_RUNIC)) {
     	                    identify(theItem);
     	                }
-    	            message("you have sensed that an item in your pack bears no intrinsic enchantment", 0);
+    	                message("you have sensed that an item in your pack bears no intrinsic enchantment", 0);
     	            } else if (theItemPolarity == 1){
     	                message("you have sensed that an item in your pack has an aura of benevolent magic", 0);
     	            } else {
     	                message("you have sensed that an item in your pack has an aura of malevolent magic", 0);
     	            }
     	        }
-    	    }
-        }
+    	}
     }
 }
 
