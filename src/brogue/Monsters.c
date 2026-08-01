@@ -137,17 +137,18 @@ void initializeMonster(creature *monst, boolean itemPossible) {
     } else {
         itemChance = 0;
     }
+    if ((rogue.monsterSpawnFuse <= 0) && ((player.status[STATUS_NUTRITION] <= 0) || (player.status[STATUS_PARALYZED]))) {
+        monst->carriedItem = NULL; // antigrind measures
+    } else if (ITEMS_ENABLED
+               && itemPossible
+               && (rogue.depthLevel <= gameConst->amuletLevel)
+               && monsterItemsHopper->nextItem
+               && rand_percent(itemChance)) {
 
-    if (ITEMS_ENABLED
-        && itemPossible
-        && (rogue.depthLevel <= gameConst->amuletLevel)
-        && monsterItemsHopper->nextItem
-        && rand_percent(itemChance)) {
-
-        monst->carriedItem = monsterItemsHopper->nextItem;
-        monsterItemsHopper->nextItem = monsterItemsHopper->nextItem->nextItem;
-        monst->carriedItem->nextItem = NULL;
-        monst->carriedItem->originDepth = rogue.depthLevel;
+               monst->carriedItem = monsterItemsHopper->nextItem;
+               monsterItemsHopper->nextItem = monsterItemsHopper->nextItem->nextItem;
+               monst->carriedItem->nextItem = NULL;
+               monst->carriedItem->originDepth = rogue.depthLevel;
     } else {
         monst->carriedItem = NULL;
     }

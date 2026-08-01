@@ -1774,6 +1774,11 @@ static void processIncrementalAutoID() {
     char buf[DCOLS*3], theItemName[DCOLS*3];
     short i;
 
+    // A safeguard placed against grindy foodclock bypasses, with a paralysis loophole closed
+    if ((player.status[STATUS_NUTRITION] <= 0) || (player.status[STATUS_PARALYZED])) {
+        return;
+    }
+
     for (i=0; i<3; i++) {
         theItem = autoIdentifyItems[i];
         if (theItem
