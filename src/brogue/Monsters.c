@@ -137,8 +137,11 @@ void initializeMonster(creature *monst, boolean itemPossible) {
     } else {
         itemChance = 0;
     }
-    if ((rogue.monsterSpawnFuse <= 0) && ((player.status[STATUS_NUTRITION] <= 0) || (player.status[STATUS_PARALYZED]))) {
-        monst->carriedItem = NULL; // antigrind measures
+    if ((rogue.monsterSpawnFuse <= 0) // try to affect only periodic spawns
+        && ((rogue.starvedTurnsLeeway <= 0) // i.e. player is also starving
+            || (player.status[STATUS_PARALYZED] && rogue.paralyzedTurnsLeeway <= 0))) {
+                
+                monst->carriedItem = NULL; // antigrind measures
     } else if (ITEMS_ENABLED
                && itemPossible
                && (rogue.depthLevel <= gameConst->amuletLevel)
