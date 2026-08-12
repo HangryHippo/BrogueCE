@@ -2068,9 +2068,6 @@ boolean startFighting(enum directions dir, boolean tillDeath) {
         return false;
     }
     int expectedDamage = monst->info.damage.upperBound * monsterDamageAdjustmentAmount(monst) / FP_FACTOR;
-    if (rogue.mode == GAME_MODE_EASY) {
-        expectedDamage /= 5;
-    }
     rogue.blockCombatText = true;
     rogue.disturbed = false;
     do {
