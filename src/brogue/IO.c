@@ -2685,7 +2685,7 @@ void executeKeystroke(signed long keystroke, boolean controlKey, boolean shiftKe
             break;
         case EASY_MODE_KEY:
             //if (shiftKey) {
-                enableEasyMode();
+            //    enableEasyMode();
             //}
             break;
         case PRINTSCREEN_KEY:

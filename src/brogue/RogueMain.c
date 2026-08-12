@@ -184,6 +184,29 @@ void initializeGameVariant() {
     }
 }
 
+void easyModeGoodSword() {
+    item *theItem;
+
+    theItem = generateItem(WEAPON, SWORD);
+    theItem->enchant1 = 1;
+    theItem->enchant2 = 0;
+    theItem->flags &= ~(ITEM_CURSED | ITEM_RUNIC);
+    strcpy(theItem->inscription, "I am not an evil liar");
+    theItem = addItemToPack(theItem);
+}
+
+void easyModeBadSword() {
+    item *theItem;
+
+    theItem = generateItem(WEAPON, SWORD);
+    theItem->enchant1 = -1;
+    theItem->enchant2 = 0;
+    theItem->flags &= ~ITEM_RUNIC;
+    theItem->flags |= ITEM_CURSED;
+    strcpy(theItem->inscription, "I am not an evil liar");
+    theItem = addItemToPack(theItem);
+}
+
 // Seed is used as the dungeon seed unless it's zero, in which case generate a new one.
 // Either way, previousGameSeed is set to the seed we use.
 // None of this seed stuff is applicable if we're playing a recording.
@@ -434,15 +457,89 @@ void initializeRogue(uint64_t seed) {
     identify(theItem);
     theItem = addItemToPack(theItem);
 
-    theItem = generateItem(ARMOR, LEATHER_ARMOR);
-    theItem->enchant1 = 0;
-    theItem->flags &= ~(ITEM_CURSED | ITEM_RUNIC);
-    identify(theItem);
-    theItem = addItemToPack(theItem);
-    equipItem(theItem, false, NULL);
-    player.status[STATUS_DONNING] = 0;
-
+    if (rogue.mode == GAME_MODE_EASY) {
+        theItem = generateItem(ARMOR, SCALE_MAIL);
+        theItem->enchant1 = 0;
+        theItem->flags &= ~(ITEM_CURSED | ITEM_RUNIC);
+        identify(theItem);
+        theItem = addItemToPack(theItem);
+        equipItem(theItem, false, NULL);
+        player.status[STATUS_DONNING] = 0;
+    } else {
+        theItem = generateItem(ARMOR, LEATHER_ARMOR);
+        theItem->enchant1 = 0;
+        theItem->flags &= ~(ITEM_CURSED | ITEM_RUNIC);
+        identify(theItem);
+        theItem = addItemToPack(theItem);
+        equipItem(theItem, false, NULL);
+        player.status[STATUS_DONNING] = 0;
+    }
+      
     recalculateEquipmentBonuses();
+
+    if (rogue.mode == GAME_MODE_EASY) {
+        rogue.strength = 13;
+
+        // need to randomize sword position in pack
+        if (rand_range(0,1)) {
+            easyModeGoodSword();
+            easyModeBadSword();
+        } else {
+            easyModeBadSword();
+            easyModeGoodSword();
+        }   
+
+        // choose one of the ID types below to bifurcate easy mode games
+        if (rand_range(0,1)) {
+            theItem = generateItem(POTION, POTION_DETECT_MAGIC);
+            identify(theItem);
+            theItem = addItemToPack(theItem);
+
+	        theItem = generateItem(SCROLL, SCROLL_REMOVE_CURSE);
+	        identify(theItem);
+        } else {
+            theItem = generateItem(SCROLL, SCROLL_REMOVE_CURSE);
+            identify(theItem);
+            theItem = addItemToPack(theItem);
+
+	        theItem = generateItem(POTION, POTION_DETECT_MAGIC);
+	        identify(theItem);
+        }
+        
+        // also randomize some knowledge scrolls
+	    if (rand_range(0,1)) {
+	        theItem = generateItem(SCROLL, SCROLL_IDENTIFY);
+	        identify(theItem);
+	        theItem = addItemToPack(theItem);
+
+	        theItem = generateItem(SCROLL, SCROLL_PROTECT_WEAPON);
+	        identify(theItem);
+	    } else {
+	        theItem = generateItem(SCROLL, SCROLL_PROTECT_WEAPON);
+	        identify(theItem);
+	        theItem = addItemToPack(theItem);
+	        strcpy(theItem->inscription, "Also uncurses equipped weapon");
+
+	        theItem = generateItem(SCROLL, SCROLL_IDENTIFY);
+	        identify(theItem);
+	    }
+
+	    theItem = generateItem(SCROLL, SCROLL_PROTECT_ARMOR);
+	    identify(theItem);
+        theItem = generateItem(POTION, POTION_STRENGTH);
+        identify(theItem);
+	    deleteItem(theItem);
+
+        theItem = generateItem(SCROLL, SCROLL_ENCHANTING);
+        identify(theItem);
+        theItem = addItemToPack(theItem);
+        strcpy(theItem->inscription, "Also uncurses an item");
+
+        theItem = generateItem(POTION, POTION_LIFE);
+        identify(theItem);
+        theItem = addItemToPack(theItem);
+
+    }
 
     if (D_OMNISCENCE) {
         rogue.playbackOmniscience = 1;
