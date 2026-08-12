@@ -1557,12 +1557,6 @@ boolean inflictDamage(creature *attacker, creature *defender,
         wakeUp(defender);
     }
 
-    if (defender == &player
-        && rogue.mode == GAME_MODE_EASY
-        && damage > 0) {
-        damage = max(1, damage/5);
-    }
-
     if (((attacker == &player && rogue.transference) || (attacker && attacker != &player && (attacker->info.abilityFlags & MA_TRANSFERENCE)))
         && !(defender->info.flags & (MONST_INANIMATE | MONST_INVULNERABLE))) {
 
