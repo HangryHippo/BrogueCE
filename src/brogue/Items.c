@@ -52,6 +52,7 @@ item *initializeItem() {
     theItem->timesEnchanted = 0;
     theItem->vorpalEnemy = 0;
     theItem->charges = 0;
+    theItem->detectMagicTimer = 0;
     theItem->quantity = 1;
     theItem->quiverNumber = 0;
     theItem->originDepth = 0;
@@ -175,6 +176,21 @@ boolean itemIsPositivelyEnchanted(const item *theItem) {
     return theItem->enchant1 > 0;
 }
 
+// Sets different detect magic reward rates according to difficulty
+int itemDelayToAutoDetectMagicDifficulty() {
+// uncomment/recomment the line below in order to disable/enable holdID globally for all variants and difficulties
+// return 0;
+	
+    if (rogue.mode == GAME_MODE_NORMAL) {
+        return 0; // currently disabled for normal mode in all variants, comment out the line to re-enable
+        return gameConst->itemDelayToAutoDetectMagicNormal;
+    } else if (rogue.mode == GAME_MODE_EASY) {
+    	return gameConst->itemDelayToAutoDetectMagicEasy;
+  	} else {	// i.e. wizard mode
+    	return 0;
+  	}
+}
+
 // Sets an item to the given type and category (or chooses randomly if -1) with all other stats
 item *makeItemInto(item *theItem, unsigned long itemCategory, short itemKind) {
     const itemTable *theEntry = NULL;
@@ -273,6 +289,7 @@ item *makeItemInto(item *theItem, unsigned long itemCategory, short itemKind) {
                 theItem->enchant1 = 0; // throwing weapons can't be magical
             }
             theItem->charges = gameConst->weaponKillsToAutoID; // kill 20 enemies to auto-identify
+            theItem->detectMagicTimer = itemDelayToAutoDetectMagicDifficulty(); // this many turns until it reveals its polarity while held
             break;
 
         case ARMOR:
@@ -283,6 +300,7 @@ item *makeItemInto(item *theItem, unsigned long itemCategory, short itemKind) {
             theItem->armor = randClump(armorTable[itemKind].range);
             theItem->strengthRequired = armorTable[itemKind].strengthRequired;
             theItem->charges = gameConst->armorDelayToAutoID; // this many turns until it reveals its enchants and whether runic
+            theItem->detectMagicTimer = itemDelayToAutoDetectMagicDifficulty(); // this many turns until it reveals its polarity while held
             if (rand_percent(40)) {
                 theItem->enchant1 += rand_range(1, 3);
                 if (rand_percent(50)) {
@@ -351,6 +369,7 @@ item *makeItemInto(item *theItem, unsigned long itemCategory, short itemKind) {
             theEntry = &ringTable[itemKind];
             theItem->enchant1 = randClump(ringTable[itemKind].range);
             theItem->charges = gameConst->ringDelayToAutoID; // how many turns of being worn until it auto-identifies
+            theItem->detectMagicTimer = itemDelayToAutoDetectMagicDifficulty(); // this many turns until it reveals its polarity while held
             if (rand_percent(16)) {
                 // cursed
                 theItem->enchant1 *= -1;
@@ -1122,6 +1141,9 @@ static void swapItemToEnchantLevel(item *theItem, short newEnchant, boolean ench
         } else {
             theItem->flags &= ~(ITEM_MAX_CHARGES_KNOWN | ITEM_IDENTIFIED);
             theItem->flags |= ITEM_CAN_BE_IDENTIFIED;
+            if ((theItem->category & (WEAPON | ARMOR | RING)) && (theItem->detectMagicTimer > 0)) {
+	            theItem->detectMagicTimer = itemDelayToAutoDetectMagicDifficulty(); // turns held until polarity is revealed
+	        }
             if (theItem->category & WEAPON) {
                 theItem->charges = gameConst->weaponKillsToAutoID; // kill this many enemies to auto-identify
             } else if (theItem->category & ARMOR) {
@@ -2076,11 +2098,25 @@ void itemDetails(char *buf, item *theItem) {
                             theItem->charges,
                             (theItem->charges == gameConst->weaponKillsToAutoID ? "" : " more"),
                             (theItem->charges == 1 ? "enemy" : "enemies"));
+                    if (!(theItem->flags & ITEM_MAGIC_DETECTED) && (theItem->detectMagicTimer > 0)) {
+                        strcat(buf, buf2);
+		                sprintf(buf2, "It will reveal its magic polarity if you hold it for %i%s %s. ",
+			                    theItem->detectMagicTimer,
+			                    (theItem->detectMagicTimer == itemDelayToAutoDetectMagicDifficulty() ? "" : " more"),
+			                    (theItem->detectMagicTimer == 1 ? "turn" : "turns"));
+		            }
                 } else {
                     sprintf(buf2, "It will reveal its secrets if worn for %i%s turn%s. ",
                             theItem->charges,
                             (theItem->charges == gameConst->armorDelayToAutoID ? "" : " more"),
                             (theItem->charges == 1 ? "" : "s"));
+                    if (!(theItem->flags & ITEM_MAGIC_DETECTED) && (theItem->detectMagicTimer > 0)) {
+		                    strcat(buf, buf2);
+		                    sprintf(buf2, "It will reveal its magic polarity if you hold it for %i%s %s. ",
+			                        theItem->detectMagicTimer,
+			                        (theItem->detectMagicTimer == itemDelayToAutoDetectMagicDifficulty() ? "" : " more"),
+			                        (theItem->detectMagicTimer == 1 ? "turn" : "turns"));
+		            }
                 }
                 strcat(buf, buf2);
             }
@@ -2649,6 +2685,13 @@ void itemDetails(char *buf, item *theItem) {
                 } else {
                     strcat(buf, ".");
                 }
+                if (!(theItem->flags & ITEM_MAGIC_DETECTED) && (theItem->detectMagicTimer > 0)) {
+		                sprintf(buf2, " It will reveal its magic polarity if you hold it for %i%s %s.",
+			                    theItem->detectMagicTimer,
+			                    (theItem->detectMagicTimer == itemDelayToAutoDetectMagicDifficulty() ? "" : " more"),
+			                    (theItem->detectMagicTimer == 1 ? "turn" : "turns"));
+		                strcat(buf, buf2);
+		        }
             }
 
             // equipped? cursed?
