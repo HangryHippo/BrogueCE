@@ -1000,6 +1000,8 @@ void applyArmorIntrinsicEffect(char returnString[DCOLS], creature *attacker, sho
                 }
             }
             break;
+        default:
+            break;
     }
 }
 
