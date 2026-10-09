@@ -1809,6 +1809,7 @@ const statusEffect statusEffectCatalog[NUMBER_OF_STATUS_EFFECTS] = {
     {"Discordant",      true,  0}, // STATUS_DISCORDANT
     {"Immune to Fire",  true,  1}, // STATUS_IMMUNE_TO_FIRE
     {"",                false, 0}, // STATUS_EXPLOSION_IMMUNITY,
+    {"Timeslipping",    true,  0}, // STATUS_TIMESLIPPING,
     {"",                false, 0}, // STATUS_NUTRITION,
     {"",                false, 0}, // STATUS_ENTERS_LEVEL_IN,
     {"",                false, 0}, // STATUS_ENRAGED,

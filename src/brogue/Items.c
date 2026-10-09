@@ -7400,6 +7400,11 @@ boolean drinkPotion(item *theItem) {
             player.status[STATUS_INVISIBLE] = player.maxStatus[STATUS_INVISIBLE] = magnitude;
             message("you shiver as a chill runs up your spine.", 0);
             break;
+        case POTION_TIMESLIPPING:
+            player.status[STATUS_TIMESLIPPING] = player.maxStatus[STATUS_TIMESLIPPING] = magnitude;
+            createFlare(player.loc.x, player.loc.y, SCROLL_ENCHANTMENT_LIGHT);
+            message("time has stopped for a while.", 0);
+            break;
         default:
             message("you feel very strange, as though your body doesn't know how to react!", REQUIRE_ACKNOWLEDGMENT);
     }
