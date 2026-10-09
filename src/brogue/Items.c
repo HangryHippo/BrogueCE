@@ -2743,6 +2743,13 @@ void itemDetails(char *buf, const item *theItem) {
                             charmRechargeDelay(theItem->kind, theItem->enchant1),
                             charmRechargeDelay(theItem->kind, theItem->enchant1 + enchantMagnitude()));
                     break;
+                case CHARM_TIMESLIPPING:
+                    sprintf(buf2, "\n\nWhen used, the charm will stop the flow of time for %i turns and recharge in %i turns. (If the charm is enchanted, time will stop for %i turns and it will recharge in %i turns.)",
+                            charmEffectDuration(theItem->kind, theItem->enchant1),
+                            charmRechargeDelay(theItem->kind, theItem->enchant1),
+                            charmEffectDuration(theItem->kind, theItem->enchant1 + enchantMagnitude()),
+                            charmRechargeDelay(theItem->kind, theItem->enchant1 + enchantMagnitude()));
+                    break;
                 case CHARM_RECHARGING:
                     sprintf(buf2, "\n\nWhen used, the charm will recharge your staffs (though not your wands or charms), after which it will recharge in %i turns. (If the charm is enchanted, it will recharge in %i turns.)",
                             charmRechargeDelay(theItem->kind, theItem->enchant1),
@@ -6753,6 +6760,10 @@ static boolean useCharm(item *theItem) {
             break;
         case CHARM_TELEPORTATION:
             teleport(&player, INVALID_POS, true);
+            break;
+        case CHARM_TIMESLIPPING:
+            player.status[STATUS_TIMESLIPPING] = player.maxStatus[STATUS_TIMESLIPPING] = charmEffectDuration(theItem->kind, theItem->enchant1);
+            messageWithColor("your charm hums and time suddenly stops!", &itemMessageColor, 0);
             break;
         case CHARM_RECHARGING:
             rechargeItems(STAFF);
