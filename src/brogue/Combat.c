@@ -590,7 +590,7 @@ void magicWeaponHit(creature *defender, item *theItem, boolean backstabbed) {
 
     const color *effectColors[NUMBER_WEAPON_RUNIC_KINDS] = {&white, &black,
         &yellow, &pink, &green, &confusionGasColor, NULL, NULL, &darkRed, &rainbow};
-    //  W_SPEED, W_QUIETUS, W_PARALYSIS, W_MULTIPLICITY, W_SLOWING, W_CONFUSION, W_FORCE, W_SLAYING, W_MERCY, W_PLENTY
+    //  W_SPEED, W_QUIETUS, W_PARALYSIS, W_MULTIPLICITY, W_SLOWING, W_CONFUSION, W_FORCE, W_POISON, W_SLAYING, W_MERCY, W_PLENTY
     short chance, i;
     fixpt enchant;
     enum weaponEnchants enchantType = theItem->enchant2;
@@ -757,6 +757,18 @@ void magicWeaponHit(creature *defender, item *theItem, boolean backstabbed) {
                 break;
             case W_FORCE:
                 autoID = forceWeaponHit(defender, theItem);
+                break;
+            case W_POISON:
+                if (theItem->flags & ITEM_ATTACKS_STAGGER) {
+                    addPoison(defender, defender->info.maxHP, 2);
+                } else if (theItem->flags & ITEM_ATTACKS_QUICKLY) {
+                    addPoison(defender, defender->info.maxHP / 2, 1);
+                } else {
+                    addPoison(defender, defender->info.maxHP, 1);
+                }
+                sprintf(buf, "%s is poisoned", monstName);
+                buf[DCOLS] = '\0';
+                combatMessage(buf, messageColorFromVictim(defender));
                 break;
             case W_MERCY:
                 heal(defender, gameConst->onHitMercyHealPercent, false);

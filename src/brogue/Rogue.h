@@ -833,6 +833,7 @@ enum weaponEnchants {
     W_SLOWING,
     W_CONFUSION,
     W_FORCE,
+    W_POISON,
     W_SLAYING,
     W_MERCY,
     NUMBER_GOOD_WEAPON_ENCHANT_KINDS = W_MERCY,
