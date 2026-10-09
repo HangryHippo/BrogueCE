@@ -289,6 +289,7 @@ short runicWeaponChance(item *theItem, boolean customEnchantLevel, fixpt enchant
         POW_14_RUNIC_DECREMENT, // W_SLOWING
         POW_11_RUNIC_DECREMENT, // W_CONFUSION
         POW_15_RUNIC_DECREMENT, // W_FORCE
+        POW_16_RUNIC_DECREMENT, // W_POISON
         0,      // W_SLAYING
         0,      // W_MERCY
         0};     // W_PLENTY
