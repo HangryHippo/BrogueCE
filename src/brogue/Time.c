@@ -2657,6 +2657,15 @@ void playerTurnEnded() {
     if (player.status[STATUS_NUTRITION] <= 1) {
         forceEatFood();
     }
+
+    // Because decrementPlayerStatus is called only if time is normal i.e. player.ticksUntilTurn > 0,
+    // timeslipping decrement code must be handled here
+    if (player.status[STATUS_TIMESLIPPING]) {
+        player.ticksUntilTurn = -1;
+        if (--player.status[STATUS_TIMESLIPPING] == 0) {
+            message("time returns to normal.", 0);
+        }
+    }
 }
 
 void resetScentTurnNumber() { // don't want player.scentTurnNumber to roll over the short maxint!
