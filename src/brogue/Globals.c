@@ -1619,6 +1619,7 @@ const char weaponRunicNames[NUMBER_WEAPON_RUNIC_KINDS][30] = {
     "slowing",
     "confusion",
     "force",
+    "poison",
     "slaying",
     "mercy",
     "plenty"

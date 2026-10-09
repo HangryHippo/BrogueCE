@@ -289,6 +289,7 @@ short runicWeaponChance(item *theItem, boolean customEnchantLevel, fixpt enchant
         POW_14_RUNIC_DECREMENT, // W_SLOWING
         POW_11_RUNIC_DECREMENT, // W_CONFUSION
         POW_15_RUNIC_DECREMENT, // W_FORCE
+        POW_16_RUNIC_DECREMENT, // W_POISON
         0,      // W_SLAYING
         0,      // W_MERCY
         0};     // W_PLENTY
@@ -329,11 +330,13 @@ short runicWeaponChance(item *theItem, boolean customEnchantLevel, fixpt enchant
     }
 
     // Slow weapons get an adjusted chance of 1 - (1-p)^2 to reflect two bites at the apple instead of one.
-    if (theItem->flags & ITEM_ATTACKS_STAGGER) {
+    // except poison which applies twice the effect so doesn't need a boosted chance
+    if ((theItem->flags & ITEM_ATTACKS_STAGGER) && runicType != W_POISON) {
         chance = 100 - (100 - chance) * (100 - chance) / 100;
     }
     // Fast weapons get an adjusted chance of 1 - sqrt(1-p) to reflect one bite at the apple instead of two.
-    if (theItem->flags & ITEM_ATTACKS_QUICKLY) {
+    // except poison which applies half the effect so doesn't need a reduced chance
+    if ((theItem->flags & ITEM_ATTACKS_QUICKLY) && runicType != W_POISON) {
         chance = 100 * (FP_FACTOR - fp_sqrt(FP_FACTOR - (chance * FP_FACTOR)/100)) / FP_FACTOR;
     }
 

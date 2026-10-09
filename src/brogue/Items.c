@@ -1895,6 +1895,7 @@ void itemDetails(char *buf, item *theItem) {
         "the enemy will be slowed",
         "the enemy will be confused",
         "the enemy will be flung",
+        "the enemy will be inflicted with a potent dose of poison",
         "[slaying]", // never used
         "the enemy will be healed",
         "the enemy will be cloned"
