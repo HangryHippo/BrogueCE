@@ -1612,7 +1612,7 @@ itemTable armorTable[NUMBER_ARMOR_KINDS] = {
 };
 
 const char weaponRunicNames[NUMBER_WEAPON_RUNIC_KINDS][30] = {
-    "speed",
+    "timeslipping",
     "quietus",
     "paralysis",
     "multiplicity",
@@ -1633,6 +1633,7 @@ const char armorRunicNames[NUMBER_ARMOR_ENCHANT_KINDS][30] = {
     "reflection",
     "respiration",
     "dampening",
+    "timeslipping",
     "burden",
     "vulnerability",
     "immolation",

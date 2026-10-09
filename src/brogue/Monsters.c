@@ -116,6 +116,7 @@ void initializeMonster(creature *monst, boolean itemPossible) {
     monst->ticksUntilTurn = monst->info.movementSpeed;
     monst->turnsUntilRegen = monst->info.turnsBetweenRegen * 1000; // tracked as thousandths to prevent rounding errors
     monst->regenPerTurn = 0;
+    monst->timeslippingGate = 0;
     monst->movementSpeed = monst->info.movementSpeed;
     monst->attackSpeed = monst->info.attackSpeed;
     monst->turnsSpentStationary = 0;
