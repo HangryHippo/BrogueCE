@@ -827,7 +827,7 @@ enum weaponKind {
 };
 
 enum weaponEnchants {
-    W_SPEED,
+    W_TIMESLIPPING,
     W_QUIETUS,
     W_PARALYSIS,
     W_MULTIPLICITY,
@@ -860,6 +860,7 @@ enum armorEnchants {
     A_REFLECTION,
     A_RESPIRATION,
     A_DAMPENING,
+    A_TIMESLIPPING,
     A_BURDEN,
     NUMBER_GOOD_ARMOR_ENCHANT_KINDS = A_BURDEN,
     A_VULNERABILITY,
@@ -2249,6 +2250,7 @@ typedef struct creature {
     short regenPerTurn;                 // number of HP to regenerate every single turn
     short weaknessAmount;               // number of points of weakness that are inflicted by the weakness status
     short poisonAmount;                 // number of points of damage per turn from poison
+    short timeslippingGate;             // tracks whether the creature has timeslipped, can act as a cooldown for the ability
     enum creatureStates creatureState;  // current behavioral state
     enum creatureModes creatureMode;    // current behavioral mode (higher-level than state)
 

@@ -2662,8 +2662,10 @@ void playerTurnEnded() {
     // timeslipping decrement code must be handled here
     if (player.status[STATUS_TIMESLIPPING]) {
         player.ticksUntilTurn = -1;
-        if (--player.status[STATUS_TIMESLIPPING] == 0) {
-            message("time returns to normal.", 0);
+        if (player.timeslippingGate) {
+            player.timeslippingGate = 0;
+        } else if (--player.status[STATUS_TIMESLIPPING] == 0) {
+                message("time returns to normal.", 0);
         }
     }
 }

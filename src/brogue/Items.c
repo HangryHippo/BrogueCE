@@ -2237,8 +2237,9 @@ void itemDetails(char *buf, const item *theItem) {
 
                             if ((theItem->flags & ITEM_IDENTIFIED) || rogue.playbackOmniscience) {
                                 switch (theItem->enchant2) {
-                                    case W_SPEED:
+                                    case W_TIMESLIPPING:
                                         strcat(buf, ". ");
+                                        nextLevelState = 1 + (((enchant + enchantMagnitude() * enchantIncrement(theItem)) / 3) / FP_FACTOR);
                                         break;
                                     case W_PARALYSIS:
                                         sprintf(buf2, " for %i turns. ",
@@ -2283,6 +2284,10 @@ void itemDetails(char *buf, const item *theItem) {
                                     if (nextLevelState) {
                                         if (theItem->enchant2 == W_FORCE) {
                                             sprintf(buf2, " and the distance will increase to %i.)",
+                                                    nextLevelState);
+                                        } else if (theItem->enchant2 == W_TIMESLIPPING) {
+                                            sprintf(buf2, " and the number of turns will %s %i.)",
+                                                    nextLevelState > (1 + ((enchant) / 3) / FP_FACTOR) ? "increase to" : "remain at",
                                                     nextLevelState);
                                         } else {
                                             sprintf(buf2, " and the duration will increase to %i turns.)",

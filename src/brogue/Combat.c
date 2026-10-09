@@ -590,7 +590,7 @@ void magicWeaponHit(creature *defender, item *theItem, boolean backstabbed) {
 
     const color *effectColors[NUMBER_WEAPON_RUNIC_KINDS] = {&white, &black,
         &yellow, &pink, &green, &confusionGasColor, NULL, NULL, &darkRed, &rainbow};
-    //  W_SPEED, W_QUIETUS, W_PARALYSIS, W_MULTIPLICITY, W_SLOWING, W_CONFUSION, W_FORCE, W_SLAYING, W_MERCY, W_PLENTY
+    //  W_TIMESLIPPING, W_QUIETUS, W_PARALYSIS, W_MULTIPLICITY, W_SLOWING, W_CONFUSION, W_FORCE, W_SLAYING, W_MERCY, W_PLENTY
     short chance, i;
     fixpt enchant;
     enum weaponEnchants enchantType = theItem->enchant2;
@@ -600,7 +600,7 @@ void magicWeaponHit(creature *defender, item *theItem, boolean backstabbed) {
     // If the defender is already dead, proceed only if the runic is speed or multiplicity.
     // (Everything else acts on the victim, which would literally be overkill.)
     if ((defender->bookkeepingFlags & MB_IS_DYING)
-        && theItem->enchant2 != W_SPEED
+        && theItem->enchant2 != W_TIMESLIPPING
         && theItem->enchant2 != W_MULTIPLICITY) {
         return;
     }
@@ -620,7 +620,7 @@ void magicWeaponHit(creature *defender, item *theItem, boolean backstabbed) {
     if (chance > 0 && rand_percent(chance)) {
         if (!(defender->bookkeepingFlags & MB_SUBMERGED)) {
             switch (enchantType) {
-                case W_SPEED:
+                case W_TIMESLIPPING:
                     createFlare(player.loc.x, player.loc.y, SCROLL_ENCHANTMENT_LIGHT);
                     break;
                 case W_QUIETUS:
@@ -640,14 +640,15 @@ void magicWeaponHit(creature *defender, item *theItem, boolean backstabbed) {
         itemName(theItem, theItemName, false, false, NULL);
 
         switch (enchantType) {
-            case W_SPEED:
-                if (player.ticksUntilTurn != -1) {
+            case W_TIMESLIPPING:
+                if (!player.status[STATUS_TIMESLIPPING]) {
                     sprintf(buf, "your %s trembles and time freezes for a moment", theItemName);
                     buf[DCOLS] = '\0';
                     combatMessage(buf, 0);
-                    player.ticksUntilTurn = -1; // free turn!
-                    autoID = true;
                 }
+                player.status[STATUS_TIMESLIPPING] = player.maxStatus[STATUS_TIMESLIPPING] = max(player.status[STATUS_TIMESLIPPING], 1 + ((enchant / 3) / FP_FACTOR));
+                player.timeslippingGate = 1;
+                autoID = true;
                 break;
             case W_SLAYING:
             case W_QUIETUS:
