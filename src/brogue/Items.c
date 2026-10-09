@@ -1895,6 +1895,7 @@ void itemDetails(char *buf, const item *theItem) {
         "the enemy will be slowed",
         "the enemy will be confused",
         "the enemy will be flung",
+        "the enemy will be poisoned",
         "[slaying]", // never used
         "the enemy will be healed",
         "the enemy will be cloned"
@@ -2263,6 +2264,11 @@ void itemDetails(char *buf, const item *theItem) {
                                                 weaponForceDistance(enchant));
                                         strcat(buf, buf2);
                                         nextLevelState = weaponForceDistance(enchant + enchantMagnitude() * enchantIncrement(theItem));
+                                        break;
+                                    case W_POISON:
+                                        sprintf(buf2, " with %s of lethal venom. ", 
+                                                theItem->flags & ITEM_ATTACKS_QUICKLY ? "half a dose" : theItem->flags & ITEM_ATTACKS_STAGGER ? "two doses" : "one dose");
+                                        strcat(buf, buf2);
                                         break;
                                     case W_MERCY:
                                         strcpy(buf2, " by 50% of its maximum health. ");

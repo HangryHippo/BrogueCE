@@ -24,6 +24,7 @@
 // Colors that are used outside of Globals tables - may be set by variants
 
 extern const color discordColor;
+extern const color poisonColor;
 
 extern const color undiscoveredColor;
 extern const color fireForeColor;
