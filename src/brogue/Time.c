@@ -2461,7 +2461,15 @@ void playerTurnEnded() {
                         // Do not pass go; do not collect 200 gold.
                         monst->ticksUntilTurn = monst->movementSpeed;
                     } else {
-                        monstersTurn(monst);
+                        
+                        do {
+                            monstersTurn(monst);
+                                if (monst->status[STATUS_TIMESLIPPING] && (monst->timeslippingGate == 2)) {
+                                    decrementMonsterStatus(monst); // don't double decrementMonsterStatus on the 1st turn they are timeslipping
+                                } else if ((monst->status[STATUS_TIMESLIPPING]) && monst->timeslippingGate == 1) {
+                                    monst->timeslippingGate = 2;
+                                }
+                        } while (monst->status[STATUS_TIMESLIPPING]);
                     }
 
                     for (creatureIterator it2 = iterateCreatures(monsters); hasNextCreature(it2);) {
