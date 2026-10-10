@@ -1958,6 +1958,11 @@ void decrementMonsterStatus(creature *monst) {
                     refreshDungeonCell(monst->loc);
                 }
                 break;
+            case STATUS_TIMESLIPPING:
+                if (monst->status[i]) {
+                    monst->status[i]--;
+                }
+                break;
             default:
                 if (monst->status[i]) {
                     monst->status[i]--;
@@ -3429,6 +3434,31 @@ void monstersTurn(creature *monst) {
                 monst->ticksUntilTurn = monst->attackSpeed * (monst->info.flags & MONST_CAST_SPELLS_SLOWLY ? 2 : 1);
                 return;
             }
+
+        // timeslipping effect
+        if ((monst->info.abilityFlags & MA_TIMESLIPS) 
+            && (monst->info.monsterID == MK_IMP)
+            && (monst->timeslippingGate == 0)
+            && !player.status[STATUS_TIMESLIPPING]) {
+            
+            monst->status[STATUS_TIMESLIPPING] = monst->maxStatus[STATUS_TIMESLIPPING] = 5;
+
+            monst->timeslippingGate = 1;
+        }
+
+        /*
+        if (monst->status[STATUS_TIMESLIPPING]) {
+            for (creatureIterator it = iterateCreatures(monsters); hasNextCreature(it);) {
+                creature *othermonst = nextCreature(&it);
+                if (!othermonst->status[STATUS_TIMESLIPPING]) {
+                    othermonst->ticksUntilTurn = othermonst->movementSpeed;
+                }
+                if (!player.status[STATUS_TIMESLIPPING]) {
+                    player.ticksUntilTurn = monst->status[STATUS_TIMESLIPPING] * player.movementSpeed;
+                }
+            }
+        }
+            */
 
         // if the monster is adjacent to an ally and not adjacent to the player, attack the ally
         if (distanceBetween((pos){x, y}, player.loc) > 1

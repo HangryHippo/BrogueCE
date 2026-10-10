@@ -2107,6 +2107,7 @@ enum monsterAbilityFlags {
     MA_ATTACKS_STAGGER              = Fl(16),   // monster attacks will push the player backward by one space if there is room
     MA_AVOID_CORRIDORS              = Fl(17),   // monster will avoid corridors when hunting
     MA_REFLECT_100                  = Fl(18),   // monster reflects 100% of bolts directly back at the caster
+    MA_TIMESLIPS                    = Fl(19),   // monster stops time for a few turns
 
     SPECIAL_HIT                     = (MA_HIT_HALLUCINATE | MA_HIT_STEAL_FLEE | MA_HIT_DEGRADE_ARMOR | MA_POISONS
                                        | MA_TRANSFERENCE | MA_CAUSES_WEAKNESS | MA_HIT_BURN | MA_ATTACKS_STAGGER),

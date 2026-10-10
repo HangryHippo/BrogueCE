@@ -1093,7 +1093,7 @@ creatureType monsterCatalog[NUMBER_MONSTER_KINDS] = {
     {0, "flame turret", G_TURRET, &lavaForeColor,40, 0,      150,    {0, 0, 0},      0,  100,    250,    0,              LAVA_LIGHT,    false, 0,  0,              {BOLT_FIRE},
         (MONST_TURRET), (0)},
     {0, "imp",          G_IMP,    &pink,          35,     90,     225,    {4, 9, 2},      10, 100,    100,    DF_GREEN_BLOOD, IMP_LIGHT,    false,  0,  0,              {BOLT_BLINKING},
-        (0), (MA_HIT_STEAL_FLEE)},
+        (0), (MA_HIT_STEAL_FLEE | MA_TIMESLIPS)},
     {0, "fury",         G_FURY,    &darkRed,       19,     90,     200,    {6, 11, 4},     20, 50,     100,    DF_RED_BLOOD,   0,    false,      0,      0,              {0},
         (MONST_NEVER_SLEEPS | MONST_FLIES)},
     {0, "revenant",     G_REVENANT,    &ectoplasmColor,30,     0,      200,    {15, 20, 5},    0,  100,    100,    DF_ECTOPLASM_BLOOD, 0,    true,   0,      0,              {0},
@@ -1745,6 +1745,7 @@ const char monsterAbilityFlagDescriptions[32][COLS] = {
     "pushes opponents backward when $HESHE hits", // MA_ATTACKS_STAGGER
     "avoids attacking in corridors in a group", // MA_AVOID_CORRIDORS
     "reflects magic spells back at the caster", // MA_REFLECT_100
+    "stops time",                               // MA_TIMESLIPS
 };
 
 const char monsterBookkeepingFlagDescriptions[32][COLS] = {
