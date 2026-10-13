@@ -2010,6 +2010,10 @@ static void decrementPlayerStatus() {
         message("you are no longer levitating.", 0);
     }
 
+    if (player.status[STATUS_INSUBSTANTIAL] > 0 && !--player.status[STATUS_INSUBSTANTIAL]) {
+        message("you are no longer insubstantial.", 0);
+    }
+
     if (player.status[STATUS_CONFUSED] > 0 && !--player.status[STATUS_CONFUSED]) {
         message("you no longer feel confused.", 0);
     }

@@ -2740,6 +2740,13 @@ void itemDetails(char *buf, item *theItem) {
                             charmRechargeDelay(theItem->kind, theItem->enchant1),
                             charmRechargeDelay(theItem->kind, theItem->enchant1 + enchantMagnitude()));
                     break;
+                case CHARM_INCORPOREAL_PASSAGE:
+                    sprintf(buf2, "\n\nWhen used, the charm will make you insubstantial, allowing you to walk through most walls for %i turns and recharge in %i turns. (If the charm is enchanted, you will be insubstantial for %i turns and it will recharge in %i turns.)",
+                            charmEffectDuration(theItem->kind, theItem->enchant1),
+                            charmRechargeDelay(theItem->kind, theItem->enchant1),
+                            charmEffectDuration(theItem->kind, theItem->enchant1 + enchantMagnitude()),
+                            charmRechargeDelay(theItem->kind, theItem->enchant1 + enchantMagnitude()));
+                    break;
                 case CHARM_RECHARGING:
                     sprintf(buf2, "\n\nWhen used, the charm will recharge your staffs (though not your wands or charms), after which it will recharge in %i turns. (If the charm is enchanted, it will recharge in %i turns.)",
                             charmRechargeDelay(theItem->kind, theItem->enchant1),
@@ -6785,6 +6792,10 @@ static boolean useCharm(item *theItem) {
         case CHARM_TELEPORTATION:
             teleport(&player, INVALID_POS, true);
             break;
+        case CHARM_INCORPOREAL_PASSAGE:
+            player.status[STATUS_INSUBSTANTIAL] = player.maxStatus[STATUS_INSUBSTANTIAL] = charmEffectDuration(theItem->kind, theItem->enchant1);
+            messageWithColor("your charm buzzes and you become insubstantial!", &itemMessageColor, 0);
+            break;
         case CHARM_RECHARGING:
             rechargeItems(STAFF);
             break;
@@ -7399,6 +7410,10 @@ boolean drinkPotion(item *theItem) {
         case POTION_INVISIBILITY:
             player.status[STATUS_INVISIBLE] = player.maxStatus[STATUS_INVISIBLE] = magnitude;
             message("you shiver as a chill runs up your spine.", 0);
+            break;
+        case POTION_INCORPOREAL_PASSAGE:
+            player.status[STATUS_INSUBSTANTIAL] = player.maxStatus[STATUS_INSUBSTANTIAL] = magnitude;
+            message("your body tingles as you become insubstantial.", 0);
             break;
         default:
             message("you feel very strange, as though your body doesn't know how to react!", REQUIRE_ACKNOWLEDGMENT);
