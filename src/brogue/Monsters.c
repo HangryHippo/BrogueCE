@@ -325,6 +325,11 @@ static boolean attackWouldBeFutile(const creature *attacker, const creature *def
 /// @param defender the defending creature
 /// @return true if the attacker is willing to attack the defender
 boolean monsterWillAttackTarget(const creature *attacker, const creature *defender) {
+    if ((cellHasTerrainFlag((pos){ attacker->loc.x, attacker->loc.y }, T_OBSTRUCTS_PASSABILITY)) && attacker->status[STATUS_INSUBSTANTIAL]
+        || (cellHasTerrainFlag((pos){ defender->loc.x, defender->loc.y }, T_OBSTRUCTS_PASSABILITY)) && defender->status[STATUS_INSUBSTANTIAL]) {
+        
+        return false;
+    }
     if (attacker == defender || (defender->bookkeepingFlags & MB_IS_DYING)) {
         return false;
     }
@@ -1196,6 +1201,27 @@ void teleport(creature *monst, pos destination, boolean respectTerrainAvoidanceP
     }
 }
 
+void ejectCreatureFromWalls(creature *monst) {
+    short dir;
+    boolean placedCreature;
+    pos loc;
+
+    getQualifyingLocNear(&loc, monst->loc, true, 0, (T_PATHING_BLOCKER), (HAS_MONSTER | HAS_STAIRS | IS_IN_MACHINE), false, false);
+
+    placedCreature = false;
+    for (dir=0; dir<4 && !placedCreature; dir++) {
+        loc = posNeighborInDirection(monst->loc, dir);
+        if (!cellHasTerrainFlag(loc, T_PATHING_BLOCKER) && !(pmapAt(loc)->flags & (HAS_MONSTER | HAS_STAIRS | IS_IN_MACHINE))) {
+            placedCreature = true;
+        }
+    }
+    if (!placedCreature) {
+        loc = getQualifyingPathLocNear(monst->loc, true, T_DIVIDES_LEVEL, 0, T_PATHING_BLOCKER, (HAS_MONSTER | HAS_STAIRS | IS_IN_MACHINE), false);
+    }
+
+    setMonsterLocation(monst, loc);
+}
+
 static boolean isValidWanderDestination(creature *monst, short wpIndex) {
     return (wpIndex >= 0
             && wpIndex < rogue.wpCount
@@ -1923,6 +1949,11 @@ void decrementMonsterStatus(creature *monst) {
             case STATUS_STUCK:
                 if (monst->status[i] && !cellHasTerrainFlag(monst->loc, T_ENTANGLES)) {
                     monst->status[i] = 0;
+                }
+                break;
+            case STATUS_INSUBSTANTIAL:
+                if (monst->status[i]) {
+                    monst->status[STATUS_STUCK] = 0;
                 }
                 break;
             case STATUS_DISCORDANT:
@@ -2737,7 +2768,7 @@ static boolean specificallyValidBoltTarget(creature *caster, creature *target, e
 static void monsterCastSpell(creature *caster, creature *target, enum boltType boltIndex) {
     bolt theBolt;
     char buf[200], monstName[100];
-
+    
     if (canDirectlySeeMonster(caster)) {
         monsterName(monstName, caster, true);
         sprintf(buf, "%s %s", monstName, boltCatalog[boltIndex].description);
@@ -3766,7 +3797,7 @@ boolean moveMonster(creature *monst, short dx, short dy) {
     if (monst->status[STATUS_STUCK] && !(pmap[newX][newY].flags & (HAS_PLAYER | HAS_MONSTER))
         && cellHasTerrainFlag((pos){ x, y }, T_ENTANGLES) && !(monst->info.flags & MONST_IMMUNE_TO_WEBS)) {
         if (!(monst->info.flags & MONST_INVULNERABLE)
-            && --monst->status[STATUS_STUCK]) {
+            && (--monst->status[STATUS_STUCK])) {
 
             monst->ticksUntilTurn = monst->movementSpeed;
             return true;

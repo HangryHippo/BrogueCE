@@ -1003,7 +1003,10 @@ void processStaggerHit(const creature *attacker, creature *defender) {
     short newX = clamp(defender->loc.x - attacker->loc.x, -1, 1) + defender->loc.x;
     short newY = clamp(defender->loc.y - attacker->loc.y, -1, 1) + defender->loc.y;
     if (coordinatesAreInMap(newX, newY)
-        && !cellHasTerrainFlag((pos){ newX, newY }, T_OBSTRUCTS_PASSABILITY)
+        && (!cellHasTerrainFlag((pos){ newX, newY }, T_OBSTRUCTS_PASSABILITY)
+            || (cellHasTerrainFlag((pos){ newX, newY }, T_OBSTRUCTS_PASSABILITY)
+                && !(pmap[newX][newY].flags & IMPREGNABLE) 
+                && defender->status[STATUS_INSUBSTANTIAL]))
         && !(pmap[newX][newY].flags & (HAS_MONSTER | HAS_PLAYER))) {
 
         setMonsterLocation(defender, (pos){ newX, newY });
