@@ -2010,8 +2010,16 @@ static void decrementPlayerStatus() {
         message("you are no longer levitating.", 0);
     }
 
-    if (player.status[STATUS_INSUBSTANTIAL] > 0 && !--player.status[STATUS_INSUBSTANTIAL]) {
-        message("you are no longer insubstantial.", 0);
+    if (player.status[STATUS_INSUBSTANTIAL] == 5 && cellHasTerrainFlag((pos){ player.loc.x, player.loc.y }, T_OBSTRUCTS_PASSABILITY)) {
+        message("you are starting to feel substantial. Get out of the walls soon!", REQUIRE_ACKNOWLEDGMENT);
+        player.status[STATUS_INSUBSTANTIAL]--;
+    } else if (player.status[STATUS_INSUBSTANTIAL] > 0 && !--player.status[STATUS_INSUBSTANTIAL]) {
+        if (cellHasTerrainFlag((pos){ player.loc.x, player.loc.y }, T_OBSTRUCTS_PASSABILITY)) {
+            message("you have been ejected from the dungeon's walls and are no longer insubstantial.", 0);
+            teleport(&player, INVALID_POS, false);
+        } else {
+            message("you are no longer insubstantial.", 0);
+        }
     }
 
     if (player.status[STATUS_CONFUSED] > 0 && !--player.status[STATUS_CONFUSED]) {
