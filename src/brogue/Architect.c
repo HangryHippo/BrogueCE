@@ -2815,7 +2815,7 @@ static boolean buildABridge() {
                 for (k = i + 1;
                      k < DCOLS // Iterate across the prospective length of the bridge.
                      && !pmap[k][j].machineNumber // No bridges in machines.
-                     && cellHasTerrainFlag((pos){ k, j }, T_CAN_BE_BRIDGED)  // Candidate tile must be chasm.
+                     && cellHasTerrainFlag((pos){ k, j }, T_CAN_BE_BRIDGED) // Candidate tile must be chasm, lava, deep water, or shallow water.
                      && !cellHasTMFlag((pos){ k, j }, TM_IS_SECRET) // Can't bridge over secret trapdoors.
                      && !cellHasTerrainFlag((pos){ k, j }, T_OBSTRUCTS_PASSABILITY)  // Candidate tile cannot be a wall.
                      && cellHasTerrainFlag((pos){ k, j-1 }, (T_CAN_BE_BRIDGED | T_OBSTRUCTS_PASSABILITY))    // Only chasms or walls are permitted next to the length of the bridge.
@@ -2835,10 +2835,34 @@ static boolean buildABridge() {
                     && 100 * pathingDistance(i, j, k, j, T_PATHING_BLOCKER) / (k - i) > bridgeRatioX) { // Must shorten the pathing distance enough.
 
                     for (l=i+1; l < k; l++) {
-                        pmap[l][j].layers[LIQUID] = BRIDGE;
+                        if (cellHasTerrainFlag((pos){ l, j }, T_AUTO_DESCENT)) {
+                            pmap[l][j].layers[LIQUID] = BRIDGE;
+                        } else if (cellHasTerrainFlag((pos){ l, j }, T_LAVA_INSTA_DEATH)) {
+                            pmap[l][j].layers[LIQUID] = LAVA_BRIDGE;
+                        } else if (cellHasTerrainFlag((pos){ l, j }, T_IS_WATER)) {
+                            pmap[l][j].layers[LIQUID] = WATER_BRIDGE;
+                        } else {
+                            pmap[l][j].layers[LIQUID] = BRIDGE;
+                        }
                     }
-                    pmap[i][j].layers[SURFACE] = BRIDGE_EDGE;
-                    pmap[k][j].layers[SURFACE] = BRIDGE_EDGE;
+                        if (pmap[i+1][j].layers[LIQUID] == BRIDGE) {
+                            pmap[i][j].layers[SURFACE] = BRIDGE_EDGE;
+                        } else if (pmap[i+1][j].layers[LIQUID] == LAVA_BRIDGE) {
+                            pmap[i][j].layers[SURFACE] = LAVA_BRIDGE_EDGE;
+                        } else if (pmap[i+1][j].layers[LIQUID] == WATER_BRIDGE) {
+                            pmap[i][j].layers[SURFACE] = WATER_BRIDGE_EDGE;
+                        } else {
+                            pmap[i][j].layers[SURFACE] = BRIDGE_EDGE;
+                        }
+                        if (pmap[k-1][j].layers[LIQUID] == BRIDGE) {
+                            pmap[k][j].layers[SURFACE] = BRIDGE_EDGE;
+                        } else if (pmap[k-1][j].layers[LIQUID] == LAVA_BRIDGE) {
+                            pmap[k][j].layers[SURFACE] = LAVA_BRIDGE_EDGE;
+                        } else if (pmap[k-1][j].layers[LIQUID] == WATER_BRIDGE) {
+                            pmap[k][j].layers[SURFACE] = WATER_BRIDGE_EDGE;
+                        } else {
+                            pmap[k][j].layers[SURFACE] = BRIDGE_EDGE;
+                        }
                     return true;
                 }
 
@@ -2867,10 +2891,34 @@ static boolean buildABridge() {
                     && 100 * pathingDistance(i, j, i, k, T_PATHING_BLOCKER) / (k - j) > bridgeRatioY) {
 
                     for (l=j+1; l < k; l++) {
-                        pmap[i][l].layers[LIQUID] = BRIDGE;
+                        if (cellHasTerrainFlag((pos){ i, l }, T_AUTO_DESCENT)) {
+                            pmap[i][l].layers[LIQUID] = BRIDGE;
+                        } else if (cellHasTerrainFlag((pos){ i, l }, T_LAVA_INSTA_DEATH)) {
+                            pmap[i][l].layers[LIQUID] = LAVA_BRIDGE;
+                        } else if (cellHasTerrainFlag((pos){ i, l }, T_IS_WATER)) {
+                            pmap[i][l].layers[LIQUID] = WATER_BRIDGE;
+                        } else {
+                            pmap[i][l].layers[LIQUID] = BRIDGE;
+                        }
                     }
-                    pmap[i][j].layers[SURFACE] = BRIDGE_EDGE;
-                    pmap[i][k].layers[SURFACE] = BRIDGE_EDGE;
+                        if (pmap[i][j + 1].layers[LIQUID] == BRIDGE) {
+                            pmap[i][j].layers[SURFACE] = BRIDGE_EDGE;
+                        } else if (pmap[i][j+1].layers[LIQUID] == LAVA_BRIDGE) {
+                            pmap[i][j].layers[SURFACE] = LAVA_BRIDGE_EDGE;
+                        } else if (pmap[i][j+1].layers[LIQUID] == WATER_BRIDGE) {
+                            pmap[i][j].layers[SURFACE] = WATER_BRIDGE_EDGE;
+                        } else {
+                            pmap[i][j].layers[SURFACE] = BRIDGE_EDGE;
+                        }
+                        if (pmap[i][k - 1].layers[LIQUID] == BRIDGE) {
+                            pmap[i][k].layers[SURFACE] = BRIDGE_EDGE;
+                        } else if (pmap[i][k - 1].layers[LIQUID] == LAVA_BRIDGE) {
+                            pmap[i][k].layers[SURFACE] = LAVA_BRIDGE_EDGE;
+                        } else if (pmap[i][k - 1].layers[LIQUID] == WATER_BRIDGE) {
+                            pmap[i][k].layers[SURFACE] = WATER_BRIDGE_EDGE;
+                        } else {
+                            pmap[i][k].layers[SURFACE] = BRIDGE_EDGE;
+                        }
                     return true;
                 }
             }
