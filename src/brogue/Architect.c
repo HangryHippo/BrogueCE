@@ -2839,8 +2839,12 @@ static boolean buildABridge() {
                             pmap[l][j].layers[LIQUID] = BRIDGE;
                         } else if (cellHasTerrainFlag((pos){ l, j }, T_LAVA_INSTA_DEATH)) {
                             pmap[l][j].layers[LIQUID] = LAVA_BRIDGE;
-                        } else if (cellHasTerrainFlag((pos){ l, j }, T_IS_WATER)) {
-                            pmap[l][j].layers[LIQUID] = WATER_BRIDGE;
+                        } else if ((cellHasTerrainFlag((pos){ l, j }, T_IS_WATER)) 
+                            && pmap[l][j].layers[LIQUID] == SHALLOW_WATER) {
+                            pmap[l][j].layers[LIQUID] = WATER_BRIDGE_SHALLOW;
+                        } else if ((cellHasTerrainFlag((pos){ l, j }, T_IS_WATER)) 
+                            && pmap[l][j].layers[LIQUID] == DEEP_WATER) {
+                            pmap[l][j].layers[LIQUID] = WATER_BRIDGE;    
                         } else {
                             pmap[l][j].layers[LIQUID] = BRIDGE;
                         }
@@ -2849,7 +2853,8 @@ static boolean buildABridge() {
                             pmap[i][j].layers[SURFACE] = BRIDGE_EDGE;
                         } else if (pmap[i+1][j].layers[LIQUID] == LAVA_BRIDGE) {
                             pmap[i][j].layers[SURFACE] = LAVA_BRIDGE_EDGE;
-                        } else if (pmap[i+1][j].layers[LIQUID] == WATER_BRIDGE) {
+                        } else if ((pmap[i+1][j].layers[LIQUID] == WATER_BRIDGE_SHALLOW) 
+                            || (pmap[i+1][j].layers[LIQUID] == WATER_BRIDGE)) {
                             pmap[i][j].layers[SURFACE] = WATER_BRIDGE_EDGE;
                         } else {
                             pmap[i][j].layers[SURFACE] = BRIDGE_EDGE;
@@ -2858,7 +2863,8 @@ static boolean buildABridge() {
                             pmap[k][j].layers[SURFACE] = BRIDGE_EDGE;
                         } else if (pmap[k-1][j].layers[LIQUID] == LAVA_BRIDGE) {
                             pmap[k][j].layers[SURFACE] = LAVA_BRIDGE_EDGE;
-                        } else if (pmap[k-1][j].layers[LIQUID] == WATER_BRIDGE) {
+                        } else if ((pmap[k-1][j].layers[LIQUID] == WATER_BRIDGE_SHALLOW) 
+                            || (pmap[k-1][j].layers[LIQUID] == WATER_BRIDGE)) {
                             pmap[k][j].layers[SURFACE] = WATER_BRIDGE_EDGE;
                         } else {
                             pmap[k][j].layers[SURFACE] = BRIDGE_EDGE;
@@ -2895,26 +2901,32 @@ static boolean buildABridge() {
                             pmap[i][l].layers[LIQUID] = BRIDGE;
                         } else if (cellHasTerrainFlag((pos){ i, l }, T_LAVA_INSTA_DEATH)) {
                             pmap[i][l].layers[LIQUID] = LAVA_BRIDGE;
-                        } else if (cellHasTerrainFlag((pos){ i, l }, T_IS_WATER)) {
+                        } else if (cellHasTerrainFlag((pos){ i, l }, T_IS_WATER)
+                            && pmap[i][l].layers[LIQUID] == SHALLOW_WATER) {
+                            pmap[i][l].layers[LIQUID] = WATER_BRIDGE_SHALLOW;
+                        } else if (cellHasTerrainFlag((pos){ i, l }, T_IS_WATER)
+                            && pmap[i][l].layers[LIQUID] == DEEP_WATER) {
                             pmap[i][l].layers[LIQUID] = WATER_BRIDGE;
                         } else {
                             pmap[i][l].layers[LIQUID] = BRIDGE;
                         }
                     }
-                        if (pmap[i][j + 1].layers[LIQUID] == BRIDGE) {
+                        if (pmap[i][j+1].layers[LIQUID] == BRIDGE) {
                             pmap[i][j].layers[SURFACE] = BRIDGE_EDGE;
                         } else if (pmap[i][j+1].layers[LIQUID] == LAVA_BRIDGE) {
                             pmap[i][j].layers[SURFACE] = LAVA_BRIDGE_EDGE;
-                        } else if (pmap[i][j+1].layers[LIQUID] == WATER_BRIDGE) {
+                        } else if ((pmap[i][j+1].layers[LIQUID] == WATER_BRIDGE_SHALLOW) 
+                            || (pmap[i][j+1].layers[LIQUID] == WATER_BRIDGE)) {
                             pmap[i][j].layers[SURFACE] = WATER_BRIDGE_EDGE;
                         } else {
                             pmap[i][j].layers[SURFACE] = BRIDGE_EDGE;
                         }
-                        if (pmap[i][k - 1].layers[LIQUID] == BRIDGE) {
+                        if (pmap[i][k-1].layers[LIQUID] == BRIDGE) {
                             pmap[i][k].layers[SURFACE] = BRIDGE_EDGE;
-                        } else if (pmap[i][k - 1].layers[LIQUID] == LAVA_BRIDGE) {
+                        } else if (pmap[i][k-1].layers[LIQUID] == LAVA_BRIDGE) {
                             pmap[i][k].layers[SURFACE] = LAVA_BRIDGE_EDGE;
-                        } else if (pmap[i][k - 1].layers[LIQUID] == WATER_BRIDGE) {
+                        } else if ((pmap[i][k-1].layers[LIQUID] == WATER_BRIDGE_SHALLOW) 
+                            || (pmap[i][k-1].layers[LIQUID] == WATER_BRIDGE)) {
                             pmap[i][k].layers[SURFACE] = WATER_BRIDGE_EDGE;
                         } else {
                             pmap[i][k].layers[SURFACE] = BRIDGE_EDGE;
