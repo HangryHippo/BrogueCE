@@ -1130,7 +1130,15 @@ void promoteTile(short x, short y, enum dungeonLayers layer, boolean useFireDF) 
         if (tileCatalog[pmap[x][y].layers[layer]].flags & T_PATHING_BLOCKER) {
             rogue.staleLoopMap = true;
         }
-        pmap[x][y].layers[layer] = (layer == DUNGEON ? FLOOR : NOTHING); // even the dungeon layer implicitly has floor underneath it
+        if (pmap[x][y].layers[LIQUID] == WATER_BRIDGE) { // exception for promotion of water bridges
+            pmap[x][y].layers[LIQUID] = DEEP_WATER;
+        } else if (pmap[x][y].layers[LIQUID] == WATER_BRIDGE_SHALLOW) {
+            pmap[x][y].layers[LIQUID] = SHALLOW_WATER;
+        } else if (layer == DUNGEON) {
+            pmap[x][y].layers[layer] = FLOOR;
+        } else {
+            pmap[x][y].layers[layer] = NOTHING;
+        }
         if (layer == GAS) {
             pmap[x][y].volume = 0;
         }
