@@ -1004,6 +1004,7 @@ void processStaggerHit(const creature *attacker, creature *defender) {
     short newY = clamp(defender->loc.y - attacker->loc.y, -1, 1) + defender->loc.y;
     if (coordinatesAreInMap(newX, newY)
         && (!cellHasTerrainFlag((pos){ newX, newY }, T_OBSTRUCTS_PASSABILITY)
+            // get knocked back into a wall while insubstantial
             || (cellHasTerrainFlag((pos){ newX, newY }, T_OBSTRUCTS_PASSABILITY)
                 && !(pmap[newX][newY].flags & IMPREGNABLE) 
                 && defender->status[STATUS_INSUBSTANTIAL]))

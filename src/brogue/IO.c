@@ -267,15 +267,13 @@ static short actionMenu(short x, boolean playingBack) {
             buttons[buttonCount].hotkey[0] = AUTOPLAY_KEY;
             buttonCount++;
 
-            if (!((cellHasTerrainFlag((pos){ player.loc.x, player.loc.y }, T_OBSTRUCTS_PASSABILITY)) && player.status[STATUS_INSUBSTANTIAL])) {
-                if (KEYBOARD_LABELS) {
-                    sprintf(buttons[buttonCount].text, "  %sT: %sRe-throw at last monster  ",              yellowColorEscape, whiteColorEscape);
-                } else {
-                    strcpy(buttons[buttonCount].text, "  Re-throw at last monster  ");
-                }
-                buttons[buttonCount].hotkey[0] = RETHROW_KEY;
-                buttonCount++;
+            if (KEYBOARD_LABELS) {
+                sprintf(buttons[buttonCount].text, "  %sT: %sRe-throw at last monster  ",              yellowColorEscape, whiteColorEscape);
+            } else {
+                strcpy(buttons[buttonCount].text, "  Re-throw at last monster  ");
             }
+            buttons[buttonCount].hotkey[0] = RETHROW_KEY;
+            buttonCount++;
 
             if (rogue.mode != GAME_MODE_EASY) {
                 if (KEYBOARD_LABELS) {
@@ -5065,7 +5063,7 @@ unsigned long printCarriedItemDetails(item *theItem,
         encodeMessageColor(goldColorEscape, 0, KEYBOARD_LABELS ? &yellow : &white);
         encodeMessageColor(whiteColorEscape, 0, &white);
 
-        if (theItem->category & (FOOD | SCROLL | POTION | WAND | STAFF | CHARM)) {            
+        if (theItem->category & (FOOD | SCROLL | POTION | WAND | STAFF | CHARM)) {
             sprintf(buttons[b].text, "   %sa%spply   ", goldColorEscape, whiteColorEscape);
             buttons[b].hotkey[0] = APPLY_KEY;
             b++;
@@ -5085,11 +5083,9 @@ unsigned long printCarriedItemDetails(item *theItem,
         buttons[b].hotkey[0] = DROP_KEY;
         b++;
 
-        if (!(cellHasTerrainFlag((pos){ player.loc.x, player.loc.y }, T_OBSTRUCTS_PASSABILITY) && player.status[STATUS_INSUBSTANTIAL])) {
-            sprintf(buttons[b].text, "   %st%shrow   ", goldColorEscape, whiteColorEscape);
-            buttons[b].hotkey[0] = THROW_KEY;
-            b++;
-        }
+        sprintf(buttons[b].text, "   %st%shrow   ", goldColorEscape, whiteColorEscape);
+        buttons[b].hotkey[0] = THROW_KEY;
+        b++;
 
         if (itemCanBeCalled(theItem)) {
             sprintf(buttons[b].text, "   %sc%sall    ", goldColorEscape, whiteColorEscape);

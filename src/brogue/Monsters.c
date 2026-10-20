@@ -325,11 +325,13 @@ static boolean attackWouldBeFutile(const creature *attacker, const creature *def
 /// @param defender the defending creature
 /// @return true if the attacker is willing to attack the defender
 boolean monsterWillAttackTarget(const creature *attacker, const creature *defender) {
-    if ((cellHasTerrainFlag((pos){ attacker->loc.x, attacker->loc.y }, T_OBSTRUCTS_PASSABILITY)) && attacker->status[STATUS_INSUBSTANTIAL]
-        || (cellHasTerrainFlag((pos){ defender->loc.x, defender->loc.y }, T_OBSTRUCTS_PASSABILITY)) && defender->status[STATUS_INSUBSTANTIAL]) {
-        
-        return false;
+
+    if ((cellHasTerrainFlag((pos){ attacker->loc.x, attacker->loc.y }, T_OBSTRUCTS_PASSABILITY)) && (attacker->info.flags & MONST_ATTACKABLE_THRU_WALLS)
+        || (cellHasTerrainFlag((pos){ defender->loc.x, defender->loc.y }, T_OBSTRUCTS_PASSABILITY)) && (defender->info.flags & MONST_ATTACKABLE_THRU_WALLS)) {
+
+        return true;
     }
+
     if (attacker == defender || (defender->bookkeepingFlags & MB_IS_DYING)) {
         return false;
     }
@@ -2768,7 +2770,7 @@ static boolean specificallyValidBoltTarget(creature *caster, creature *target, e
 static void monsterCastSpell(creature *caster, creature *target, enum boltType boltIndex) {
     bolt theBolt;
     char buf[200], monstName[100];
-    
+
     if (canDirectlySeeMonster(caster)) {
         monsterName(monstName, caster, true);
         sprintf(buf, "%s %s", monstName, boltCatalog[boltIndex].description);

@@ -6298,10 +6298,6 @@ void throwCommand(item *theItem, boolean autoThrow) {
 
     command[0] = THROW_KEY;
 
-    if (cellHasTerrainFlag((pos){ player.loc.x, player.loc.y }, T_OBSTRUCTS_PASSABILITY)) {
-        return;
-    }
-
     //
     // From inventory, we know item
     // Else ask ITEM

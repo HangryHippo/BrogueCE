@@ -818,8 +818,7 @@ static void buildFlailHitList(const short x, const short y, const short newX, co
             && monstersAreEnemies(&player, monst)
             && monst->creatureState != MONSTER_ALLY
             && !(monst->bookkeepingFlags & MB_IS_DYING)
-            && (!cellHasTerrainFlag(monst->loc, T_OBSTRUCTS_PASSABILITY) || (monst->info.flags & MONST_ATTACKABLE_THRU_WALLS))
-            && (!cellHasTerrainFlag((pos){ player.loc.x, player.loc.y }, T_OBSTRUCTS_PASSABILITY)) && (player.status[STATUS_INSUBSTANTIAL])) {
+            && (!cellHasTerrainFlag(monst->loc, T_OBSTRUCTS_PASSABILITY) || (monst->info.flags & MONST_ATTACKABLE_THRU_WALLS))) {
 
             while (hitList[i]) {
                 i++;
@@ -1130,8 +1129,7 @@ boolean playerMoves(short direction) {
                     && monstersAreEnemies(&player, tempMonst)
                     && tempMonst->creatureState != MONSTER_ALLY
                     && !(tempMonst->bookkeepingFlags & MB_IS_DYING)
-                    && (!cellHasTerrainFlag(tempMonst->loc, T_OBSTRUCTS_PASSABILITY) || (tempMonst->info.flags & MONST_ATTACKABLE_THRU_WALLS))
-                    && (player.status[STATUS_INSUBSTANTIAL] && (!cellHasTerrainFlag((pos){ player.loc.x, player.loc.y }, T_OBSTRUCTS_PASSABILITY)))) {
+                    && (!cellHasTerrainFlag(tempMonst->loc, T_OBSTRUCTS_PASSABILITY) || (tempMonst->info.flags & MONST_ATTACKABLE_THRU_WALLS))) {
 
                     hitList[0] = tempMonst;
                     if (abortAttack(hitList)) {
@@ -1215,6 +1213,12 @@ boolean playerMoves(short direction) {
                 pickUpItemAt(player.loc);
                 rogue.disturbed = true;
             }
+            if ((cellHasTerrainFlag((pos){ player.loc.x, player.loc.y }, T_OBSTRUCTS_PASSABILITY))) { // insubstantial status
+                player.info.flags |= MONST_ATTACKABLE_THRU_WALLS;
+            } else {
+                player.info.flags &= ~MONST_ATTACKABLE_THRU_WALLS;
+            }
+
             refreshDungeonCell((pos){ x, y });
             refreshDungeonCell(player.loc);
             playerMoved = true;
