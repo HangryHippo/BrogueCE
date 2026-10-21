@@ -2740,6 +2740,13 @@ void itemDetails(char *buf, const item *theItem) {
                             charmRechargeDelay(theItem->kind, theItem->enchant1),
                             charmRechargeDelay(theItem->kind, theItem->enchant1 + enchantMagnitude()));
                     break;
+                case CHARM_PHASING:
+                    sprintf(buf2, "\n\nWhen used, the charm will allow you to walk through most walls for %i turns and recharge in %i turns. (If the charm is enchanted, you will be insubstantial for %i turns and it will recharge in %i turns.)",
+                            charmEffectDuration(theItem->kind, theItem->enchant1),
+                            charmRechargeDelay(theItem->kind, theItem->enchant1),
+                            charmEffectDuration(theItem->kind, theItem->enchant1 + enchantMagnitude()),
+                            charmRechargeDelay(theItem->kind, theItem->enchant1 + enchantMagnitude()));
+                    break;
                 case CHARM_RECHARGING:
                     sprintf(buf2, "\n\nWhen used, the charm will recharge your staffs (though not your wands or charms), after which it will recharge in %i turns. (If the charm is enchanted, it will recharge in %i turns.)",
                             charmRechargeDelay(theItem->kind, theItem->enchant1),
@@ -3713,6 +3720,7 @@ static boolean negationWillAffectMonster(const creature *monst, boolean isBolt) 
         || (monst->status[STATUS_DISCORDANT])
         || (monst->status[STATUS_SHIELDED])
         || (monst->status[STATUS_INVISIBLE])
+        || (monst->status[STATUS_INSUBSTANTIAL])
         || (monst->status[STATUS_LEVITATING])
         || (monst->movementSpeed != monst->info.movementSpeed)
         || (monst->attackSpeed != monst->info.attackSpeed)
@@ -4050,7 +4058,16 @@ static void negationBlast(const char *emitterName, const short distance) {
     sprintf(buf, "%s emits a numbing torrent of anti-magic!", emitterName);
     messageWithColor(buf, &itemMessageColor, 0);
     colorFlash(&pink, 0, IN_FIELD_OF_VIEW, 3 + distance / 5, distance, player.loc.x, player.loc.y);
+    
+    if (player.status[STATUS_INSUBSTANTIAL]) {
+        player.info.flags &= ~MONST_IMMUNE_TO_WEBS;
+        if (cellHasTerrainFlag((pos){ player.loc.x, player.loc.y }, T_OBSTRUCTS_PASSABILITY)) {
+            ejectCreatureFromWalls(&player);
+            message("you have been ejected from the dungeon's walls and are no longer insubstantial.", 0);
+        }
+    }
     negate(&player);
+    
     flashMonster(&player, &pink, 100);
     for (creatureIterator it = iterateCreatures(monsters); hasNextCreature(it);) {
         creature *monst = nextCreature(&it);
@@ -4061,6 +4078,16 @@ static void negationBlast(const char *emitterName, const short distance) {
                 flashMonster(monst, &pink, 100);
             }
             negate(monst); // This can be fatal.
+        }
+        if (monst->status[STATUS_INSUBSTANTIAL]) {
+            monst->status[STATUS_INSUBSTANTIAL] = 0;
+            monst->info.flags &= ~MONST_IMMUNE_TO_WEBS;
+            if (cellHasTerrainFlag((pos){ monst->loc.x, monst->loc.y }, T_OBSTRUCTS_PASSABILITY)) {
+                ejectCreatureFromWalls(monst);
+            }
+            if (monst == &player) {
+                message("you have been ejected from the dungeon's walls and are no longer insubstantial.", 0);
+            }   
         }
     }
     for (theItem = floorItems; theItem != NULL; theItem = theItem->nextItem) {
@@ -4517,6 +4544,13 @@ static boolean updateBolt(bolt *theBolt, creature *caster, short x, short y,
                 }
                 break;
             case BE_NEGATION:
+                if ((monst == &player) && (player.status[STATUS_INSUBSTANTIAL])) {
+                    player.info.flags &= ~MONST_IMMUNE_TO_WEBS;
+                    if (cellHasTerrainFlag((pos){ player.loc.x, player.loc.y }, T_OBSTRUCTS_PASSABILITY)) {
+                        ejectCreatureFromWalls(&player);
+                        message("you have been ejected from the dungeon's walls and are no longer insubstantial.", 0);
+                    }
+                }
                 negated = negate(monst);
                 if (boltCatalog[BOLT_NEGATION].backColor) {
                     flashMonster(monst, boltCatalog[BOLT_NEGATION].backColor, 100);
@@ -4524,7 +4558,6 @@ static boolean updateBolt(bolt *theBolt, creature *caster, short x, short y,
                 if (negated && autoID && canSeeMonster(monst)) {
                     *autoID = true;
                 }
-
                 break;
             case BE_EMPOWERMENT:
                 if (monst != &player
@@ -6265,6 +6298,10 @@ void throwCommand(item *theItem, boolean autoThrow) {
 
     command[0] = THROW_KEY;
 
+    if (cellHasTerrainFlag((pos){ player.loc.x, player.loc.y }, T_OBSTRUCTS_PASSABILITY)) {
+        return;
+    }
+
     //
     // From inventory, we know item
     // Else ask ITEM
@@ -6750,6 +6787,12 @@ static boolean useCharm(item *theItem) {
             break;
         case CHARM_TELEPORTATION:
             teleport(&player, INVALID_POS, true);
+            break;
+        case CHARM_PHASING:
+            player.status[STATUS_INSUBSTANTIAL] = player.maxStatus[STATUS_INSUBSTANTIAL] = charmEffectDuration(theItem->kind, theItem->enchant1);
+            disentangle(&player);
+            player.info.flags |= MONST_IMMUNE_TO_WEBS;
+            messageWithColor("your charm buzzes and your body starts phasing!", &itemMessageColor, 0);
             break;
         case CHARM_RECHARGING:
             rechargeItems(STAFF);
@@ -7365,6 +7408,12 @@ boolean drinkPotion(item *theItem) {
         case POTION_INVISIBILITY:
             player.status[STATUS_INVISIBLE] = player.maxStatus[STATUS_INVISIBLE] = magnitude;
             message("you shiver as a chill runs up your spine.", 0);
+            break;
+        case POTION_PHASING:
+            player.status[STATUS_INSUBSTANTIAL] = player.maxStatus[STATUS_INSUBSTANTIAL] = magnitude;
+            disentangle(&player);
+            player.info.flags |= MONST_IMMUNE_TO_WEBS;
+            message("your body tingles as it loosens its physical restraints.", 0);
             break;
         default:
             message("you feel very strange, as though your body doesn't know how to react!", REQUIRE_ACKNOWLEDGMENT);

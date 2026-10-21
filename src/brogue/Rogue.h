@@ -791,6 +791,7 @@ enum potionKind {
     POTION_HASTE_SELF,
     POTION_FIRE_IMMUNITY,
     POTION_INVISIBILITY,
+    POTION_PHASING,
     POTION_POISON,
     POTION_PARALYSIS,
     POTION_HALLUCINATION,
@@ -952,6 +953,7 @@ enum charmKind {
     CHARM_SHATTERING,
     CHARM_GUARDIAN,
     CHARM_TELEPORTATION,
+    CHARM_PHASING,
     CHARM_RECHARGING,
     CHARM_NEGATION
 };
@@ -1985,6 +1987,7 @@ enum statusEffects {
     STATUS_DISCORDANT,
     STATUS_IMMUNE_TO_FIRE,
     STATUS_EXPLOSION_IMMUNITY,
+    STATUS_INSUBSTANTIAL,
     STATUS_NUTRITION,
     STATUS_ENTERS_LEVEL_IN,
     STATUS_ENRAGED, // temporarily ignores normal MA_AVOID_CORRIDORS behavior
@@ -3204,6 +3207,7 @@ extern "C" {
     void magicWeaponHit(creature *defender, item *theItem, boolean backstabbed);
     void disentangle(creature *monst);
     void teleport(creature *monst, pos destination, boolean respectTerrainAvoidancePreferences);
+    void ejectCreatureFromWalls(creature *monst);
     void chooseNewWanderDestination(creature *monst);
     boolean canPass(const creature *mover, const creature *blocker);
     boolean isPassableOrSecretDoor(pos loc);

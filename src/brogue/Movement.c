@@ -298,6 +298,8 @@ void describeLocation(char *buf, short x, short y) {
         } else if (monst->status[STATUS_STUCK]) {
             strcat(verb, " entangled");
             subjectMoving = false;
+        } else if (monst->status[STATUS_INSUBSTANTIAL]) {
+            strcat(verb, " phasing");
         } else if (monst->status[STATUS_LEVITATING]) {
             strcat(verb, (monsterIsPlayer ? " hovering" : (subjectMoving ? " flying" : " hovering")));
             strcat(preposition, "over");
@@ -467,8 +469,13 @@ short randValidDirectionFrom(creature *monst, short x, short y, boolean respectA
         newX = x + nbDirs[i][0];
         newY = y + nbDirs[i][1];
         if (coordinatesAreInMap(newX, newY)
-            && !cellHasTerrainFlag((pos){ newX, newY }, T_OBSTRUCTS_PASSABILITY)
-            && !diagonalBlocked(x, y, newX, newY, false)
+            && (!cellHasTerrainFlag((pos){ newX, newY }, T_OBSTRUCTS_PASSABILITY)
+                || (cellHasTerrainFlag((pos){ newX, newY}, T_OBSTRUCTS_PASSABILITY) 
+                    && !(pmap[newX][newY].flags & IMPREGNABLE)
+                    && player.status[STATUS_INSUBSTANTIAL]))
+            && (!diagonalBlocked(x, y, newX, newY, false)
+                || (diagonalBlocked(x, y, newX, newY, false) 
+                    && player.status[STATUS_INSUBSTANTIAL]))
             && (!respectAvoidancePreferences
                 || (!monsterAvoids(monst, (pos){newX, newY}))
                 || ((pmap[newX][newY].flags & HAS_PLAYER) && monst->creatureState != MONSTER_ALLY))) {
@@ -811,7 +818,8 @@ static void buildFlailHitList(const short x, const short y, const short newX, co
             && monstersAreEnemies(&player, monst)
             && monst->creatureState != MONSTER_ALLY
             && !(monst->bookkeepingFlags & MB_IS_DYING)
-            && (!cellHasTerrainFlag(monst->loc, T_OBSTRUCTS_PASSABILITY) || (monst->info.flags & MONST_ATTACKABLE_THRU_WALLS))) {
+            && (!cellHasTerrainFlag(monst->loc, T_OBSTRUCTS_PASSABILITY) || (monst->info.flags & MONST_ATTACKABLE_THRU_WALLS))
+            && (!cellHasTerrainFlag((pos){ player.loc.x, player.loc.y }, T_OBSTRUCTS_PASSABILITY)) && (player.status[STATUS_INSUBSTANTIAL])) {
 
             while (hitList[i]) {
                 i++;
@@ -927,9 +935,13 @@ boolean playerMoves(short direction) {
 
     }
 
-    if (((!cellHasTerrainFlag((pos){ newX, newY }, T_OBSTRUCTS_PASSABILITY) || (cellHasTMFlag((pos){ newX, newY }, TM_PROMOTES_WITH_KEY) && keyInPackFor((pos){ newX, newY })))
-         && !diagonalBlocked(x, y, newX, newY, false)
-         && (!cellHasTerrainFlag((pos){ x, y }, T_OBSTRUCTS_PASSABILITY) || (cellHasTMFlag((pos){ x, y }, TM_PROMOTES_WITH_KEY) && keyInPackFor((pos){ x, y }))))
+    if (((!cellHasTerrainFlag((pos){ newX, newY }, T_OBSTRUCTS_PASSABILITY) 
+        || (cellHasTerrainFlag((pos){ newX, newY}, T_OBSTRUCTS_PASSABILITY) && !(pmap[newX][newY].flags & IMPREGNABLE) && player.status[STATUS_INSUBSTANTIAL]) 
+        || (cellHasTMFlag((pos){ newX, newY }, TM_PROMOTES_WITH_KEY) && keyInPackFor((pos){ newX, newY })))
+         && (!diagonalBlocked(x, y, newX, newY, false) || (diagonalBlocked(x, y, newX, newY, false) && player.status[STATUS_INSUBSTANTIAL]))
+         && ((!cellHasTerrainFlag((pos){ x, y }, T_OBSTRUCTS_PASSABILITY))
+            || (cellHasTerrainFlag((pos){ x, y}, T_OBSTRUCTS_PASSABILITY) && player.status[STATUS_INSUBSTANTIAL])
+            || (cellHasTMFlag((pos){ x, y }, TM_PROMOTES_WITH_KEY) && keyInPackFor((pos){ x, y }))))
         || (defender && defender->info.flags & MONST_ATTACKABLE_THRU_WALLS)) {
         // if the move is not blocked
 
@@ -1118,7 +1130,8 @@ boolean playerMoves(short direction) {
                     && monstersAreEnemies(&player, tempMonst)
                     && tempMonst->creatureState != MONSTER_ALLY
                     && !(tempMonst->bookkeepingFlags & MB_IS_DYING)
-                    && (!cellHasTerrainFlag(tempMonst->loc, T_OBSTRUCTS_PASSABILITY) || (tempMonst->info.flags & MONST_ATTACKABLE_THRU_WALLS))) {
+                    && (!cellHasTerrainFlag(tempMonst->loc, T_OBSTRUCTS_PASSABILITY) || (tempMonst->info.flags & MONST_ATTACKABLE_THRU_WALLS))
+                    && (player.status[STATUS_INSUBSTANTIAL] && (!cellHasTerrainFlag((pos){ player.loc.x, player.loc.y }, T_OBSTRUCTS_PASSABILITY)))) {
 
                     hitList[0] = tempMonst;
                     if (abortAttack(hitList)) {
@@ -1226,7 +1239,7 @@ boolean playerMoves(short direction) {
 
             playerTurnEnded();
         }
-    } else if (cellHasTerrainFlag((pos){ newX, newY }, T_OBSTRUCTS_PASSABILITY)) {
+    } else if ((cellHasTerrainFlag((pos){ newX, newY }, T_OBSTRUCTS_PASSABILITY)) && !player.status[STATUS_INSUBSTANTIAL]) {
         i = pmap[newX][newY].layers[layerWithFlag(newX, newY, T_OBSTRUCTS_PASSABILITY)];
         if ((tileCatalog[i].flags & T_OBSTRUCTS_PASSABILITY)
             && (!diagonalBlocked(x, y, newX, newY, false) || !cellHasTMFlag((pos){ newX, newY }, TM_PROMOTES_WITH_KEY))) {
