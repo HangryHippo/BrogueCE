@@ -856,7 +856,7 @@ static void forceEatFood(void) {
             messageWithColor(buf, &itemMessageColor, REQUIRE_ACKNOWLEDGMENT);
             confirmMessages();
             eat(theItem, false);
-            rogue.starvedTurnsLeeway = gameConst->starvationLeeway; // ensures a positive leeway when not starving
+            rogue.antigrindCounter = 0; // antigrind measures end when the player eats
             playerTurnEnded();
             break;
         }
@@ -1798,8 +1798,7 @@ static void processIncrementalAutoID() {
     char buf[DCOLS*3], theItemName[DCOLS*3];
     short i;
 
-    // A safeguard placed against grindy foodclock bypasses, with a paralysis loophole closed
-    if ((rogue.starvedTurnsLeeway <= 0) || (player.status[STATUS_PARALYZED])) {
+    if (player.status[STATUS_PARALYZED]) {
         return;
 	}
 
@@ -1998,15 +1997,11 @@ static void monstersApproachStairs() {
 static void decrementPlayerStatus() {
     // Handle hunger. Paralysis consumes hunger at a 20% rate to prevent potential food clock abuses.
     if (player.status[STATUS_NUTRITION] > 0) {
-        if (!(numberOfMatchingPackItems(AMULET, 0, 0, false) || player.status[STATUS_PARALYZED]) || rand_percent(20)) {
+        if (!(numberOfMatchingPackItems(AMULET, 0, 0, false) || player.status[STATUS_PARALYZED]) 
+            || rand_percent(20)) {
             player.status[STATUS_NUTRITION]--;
             printNutritionMessages();
         }
-    }
-
-    // Handle starvation grinding
-    if (player.status[STATUS_NUTRITION] <= 0 && rogue.starvedTurnsLeeway > 0) {
-        rogue.starvedTurnsLeeway--;
     }
 
     if (player.status[STATUS_TELEPATHIC] > 0 && !--player.status[STATUS_TELEPATHIC]) {
@@ -2102,6 +2097,9 @@ static void decrementPlayerStatus() {
     if (rogue.monsterSpawnFuse <= 0) {
         spawnPeriodicHorde();
         rogue.monsterSpawnFuse = rand_range(125, 175);
+        if (player.status[STATUS_NUTRITION] <= 0 && rogue.antigrindCounter < 200) { // 200 HP as a safe upper bound
+            rogue.antigrindCounter++;
+        }
     }
 }
 
@@ -2296,7 +2294,7 @@ void playerTurnEnded() {
 
         // Regeneration/starvation:
         if (player.status[STATUS_NUTRITION] <= 0) {
-            player.currentHP--;
+            player.currentHP -= rogue.antigrindCounter;
             if (player.currentHP <= 0) {
                 gameOver("Starved to death", true);
                 return;
