@@ -1,0 +1,1 @@
+Added the staff of distraction inspired by Andrew Doull's staff of dead man's ear from unBrogue. Casting it will create a few time-limited decoys.

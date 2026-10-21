@@ -2539,6 +2539,11 @@ void itemDetails(char *buf, const item *theItem) {
                                 staffBladeCount(enchant),
                                 staffBladeCount(enchant + enchantMagnitude() * FP_FACTOR));
                         break;
+                    case STAFF_DISTRACTION:
+						sprintf(buf2, "The decoys will stay alive for %i turns (If the staff is enchanted this will become %i turns.)",
+								staffDistractionDuration(enchant),
+								staffDistractionDuration(enchant + enchantMagnitude() * FP_FACTOR));
+						break;
                     case STAFF_PROTECTION:
                         sprintf(buf2, "This staff will shield a creature for up to 20 turns against up to %i damage. (If the staff is enchanted, this will increase to %i damage.)",
                                 staffProtection(enchant) / 10,
@@ -4340,6 +4345,7 @@ static boolean updateBolt(bolt *theBolt, creature *caster, short x, short y,
     creature *newMonst; // Utility variable for plenty
     boolean terminateBolt = false;
     boolean negated = false;
+    short duration;
 
     if (lightingChanged) {
         *lightingChanged = false;
@@ -4619,6 +4625,9 @@ static boolean updateBolt(bolt *theBolt, creature *caster, short x, short y,
                     }
                 }
                 break;
+            case BE_DISTRACTION:
+				duration = staffDistractionDuration(theBolt->magnitude * FP_FACTOR);
+				break;
             case BE_SHIELDING:
                 if (staffProtection(theBolt->magnitude * FP_FACTOR) > monst->status[STATUS_SHIELDED]) {
                     monst->status[STATUS_SHIELDED] = staffProtection(theBolt->magnitude * FP_FACTOR);
@@ -4634,6 +4643,8 @@ static boolean updateBolt(bolt *theBolt, creature *caster, short x, short y,
             default:
                 break;
         }
+
+        duration *= theBolt->magnitude;
 
         if (!(theBolt->flags & BF_PASSES_THRU_CREATURES)) {
             terminateBolt = true;
@@ -4712,6 +4723,36 @@ static void detonateBolt(bolt *theBolt, creature *caster, short x, short y, bool
         case BE_CONJURATION:
             for (i = 0; i < (staffBladeCount(theBolt->magnitude * FP_FACTOR)); i++) {
                 monst = generateMonster(MK_SPECTRAL_BLADE, true, false);
+                monst->loc = getQualifyingPathLocNear((pos){ x, y }, true,
+                                         T_DIVIDES_LEVEL & avoidedFlagsForMonster(&(monst->info)) & ~T_SPONTANEOUSLY_IGNITES, HAS_PLAYER,
+                                         avoidedFlagsForMonster(&(monst->info)) & ~T_SPONTANEOUSLY_IGNITES, (HAS_PLAYER | HAS_MONSTER | HAS_STAIRS), false);
+
+                // Invalid location (level is full)
+                if (posEq(monst->loc, INVALID_POS)) {
+                    killCreature(monst, true); // Administrative death
+                    break; // Don't conjure any more
+                }
+
+                monst->bookkeepingFlags |= (MB_FOLLOWER | MB_BOUND_TO_LEADER | MB_DOES_NOT_TRACK_LEADER);
+                monst->bookkeepingFlags &= ~MB_JUST_SUMMONED;
+                monst->leader = &player;
+                monst->creatureState = MONSTER_ALLY;
+                monst->ticksUntilTurn = monst->info.attackSpeed + 1; // So they don't move before the player's next turn.
+                pmapAt(monst->loc)->flags |= HAS_MONSTER;
+                //refreshDungeonCell(monst->loc);
+                fadeInMonster(monst);
+            }
+            updateVision(true);
+            //refreshSideBar(-1, -1, false);
+            monst = NULL;
+            if (autoID) {
+                *autoID = true;
+            }
+            break;
+        case BE_DISTRACTION:
+            for (i = 0; i < 5; i++) { // have to figure out how to get quantity of decoys up
+                monst = generateMonster(MK_DECOY, false, false);
+                monst->status[STATUS_LIFESPAN_REMAINING] = staffDistractionDuration(theBolt->magnitude * FP_FACTOR);
                 monst->loc = getQualifyingPathLocNear((pos){ x, y }, true,
                                          T_DIVIDES_LEVEL & avoidedFlagsForMonster(&(monst->info)) & ~T_SPONTANEOUSLY_IGNITES, HAS_PLAYER,
                                          avoidedFlagsForMonster(&(monst->info)) & ~T_SPONTANEOUSLY_IGNITES, (HAS_PLAYER | HAS_MONSTER | HAS_STAIRS), false);

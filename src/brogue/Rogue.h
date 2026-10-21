@@ -888,6 +888,7 @@ enum staffKind {
     STAFF_OBSTRUCTION,
     STAFF_DISCORD,
     STAFF_CONJURATION,
+    STAFF_DISTRACTION,
     STAFF_HEALING,
     NUMBER_GOOD_STAFF_KINDS = STAFF_HEALING,
     STAFF_HASTE,
@@ -916,6 +917,7 @@ enum boltType {
     BOLT_OBSTRUCTION,
     BOLT_DISCORD,
     BOLT_CONJURATION,
+    BOLT_DISTRACTION,
     BOLT_HEALING,
     BOLT_HASTE,
     BOLT_SLOW_2,
@@ -1051,6 +1053,8 @@ enum monsterTypes {
     MK_PHOENIX,
     MK_PHOENIX_EGG,
     MK_ANCIENT_SPIRIT,
+
+    MK_DECOY,
 
     NUMBER_MONSTER_KINDS
 };
@@ -1821,6 +1825,7 @@ enum boltEffects {
     BE_OBSTRUCTION,
     BE_DISCORD,
     BE_CONJURATION,
+    BE_DISTRACTION,
     BE_HEALING,
     BE_HASTE,
     BE_SHIELDING,
@@ -2024,6 +2029,8 @@ enum hordeFlags {
     HORDE_MACHINE_THIEF             = Fl(16),   // monsters that can be generated in the key thief area machines
     HORDE_MACHINE_GOBLIN_WARREN     = Fl(17),   // can spawn in goblin warrens
     HORDE_SACRIFICE_TARGET          = Fl(18),   // can be the target of an assassination challenge; leader will get scary light.
+
+    HORDE_DECOY				        = Fl(19),	// horde summoned by bolt of distraction
 
     HORDE_MACHINE_ONLY              = (HORDE_MACHINE_BOSS | HORDE_MACHINE_WATER_MONSTER
                                        | HORDE_MACHINE_CAPTIVE | HORDE_MACHINE_STATUE
@@ -3461,6 +3468,7 @@ extern "C" {
     short staffBlinkDistance(fixpt enchant);
     short staffHasteDuration(fixpt enchant);
     short staffBladeCount(fixpt enchant);
+    short staffDistractionDuration(fixpt enchant);
     short staffDiscordDuration(fixpt enchant);
     int staffProtection(fixpt enchant);
     short staffEntrancementDuration(fixpt enchant);

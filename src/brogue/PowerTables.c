@@ -52,6 +52,7 @@ short staffDamage(fixpt enchant)               {return ((int) randClumpedRange(s
 short staffBlinkDistance(fixpt enchant)        {return ((int) (2 + enchant * 2 / FP_FACTOR));}
 short staffHasteDuration(fixpt enchant)        {return ((int) (2 + enchant * 4 / FP_FACTOR));}
 short staffBladeCount(fixpt enchant)           {return ((int) (enchant * 3 / 2 / FP_FACTOR));}
+short staffDistractionDuration(fixpt enchant)  {return ((int) (enchant * 10 / FP_FACTOR));}
 short staffDiscordDuration(fixpt enchant)      {return ((int) (enchant * 4 / FP_FACTOR));}
 short staffEntrancementDuration(fixpt enchant) {return ((int) (enchant * 3 / FP_FACTOR));}
 int staffProtection(fixpt enchant) {
