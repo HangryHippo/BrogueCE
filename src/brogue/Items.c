@@ -2408,7 +2408,8 @@ void itemDetails(char *buf, const item *theItem) {
                                 strcpy(buf2, "When worn, it will safely absorb the concussive impact of any explosions (though you may still be burned). ");
                                 break;
                             case A_TIMESLIPPING:
-                                strcpy(buf2, "When worn, it will stop time for 12 turns when your health drops lower than 20% in combat, after which the runic will fade. ");
+                                sprintf(buf2, "When worn, it will stop time for 24 turns when your health drops lower than 25%% in combat, after which the runic will go dormant. Turns until timeslipping is available: %d. ",
+                                        theItem->lastUsed[0]);
                                 break;
                             case A_BURDEN:
                                 strcpy(buf2, "10% of the time it absorbs a blow, its strength requirement will permanently increase. ");

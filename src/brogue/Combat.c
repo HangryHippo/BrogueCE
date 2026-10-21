@@ -946,14 +946,14 @@ void applyArmorRunicEffect(char returnString[DCOLS], creature *attacker, short *
                 runicDiscovered = true;
             }
             break;
-        case A_TIMESLIPPING:
+    /*  case A_TIMESLIPPING:
             if ((player.info.maxHP / 5) > (player.currentHP - *damage )) {
                 player.status[STATUS_TIMESLIPPING] = player.maxStatus[STATUS_TIMESLIPPING] = 12;
                 sprintf(returnString, "your %s explodes and stops the flow of time!", armorName);
                 runicDiscovered = true;
                 rogue.armor->flags &= ~ITEM_RUNIC; // temporary way to balance the runic, for now
             }
-            break;
+            break; */
         case A_BURDEN:
             if (rand_percent(10)) {
                 rogue.armor->strengthRequired++;

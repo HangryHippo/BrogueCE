@@ -2487,9 +2487,9 @@ void playerTurnEnded() {
                         monst->ticksUntilTurn = monst->movementSpeed;
                     } else {
                         
-                        do {
+                        do { // free turns for timeslipping monsters handled here
                             monstersTurn(monst);
-                                if (monst->status[STATUS_TIMESLIPPING] && (monst->timeslippingGate == 2)) {
+                                if (monst->status[STATUS_TIMESLIPPING] && (monst->timeslippingGate >= 2)) {
                                     decrementMonsterStatus(monst); // don't double decrementMonsterStatus on the 1st turn they are timeslipping
                                 } else if ((monst->status[STATUS_TIMESLIPPING]) && monst->timeslippingGate == 1) {
                                     monst->timeslippingGate = 2;
@@ -2666,6 +2666,29 @@ void playerTurnEnded() {
         forceEatFood();
     }
 
+    // Timeslipping armor
+    char armorName[DCOLS];
+    boolean runicKnown;
+    boolean runicDiscovered = false;
+    runicKnown = rogue.armor->flags & ITEM_RUNIC_IDENTIFIED;
+    itemName(rogue.armor, armorName, false, false, NULL);
+    if ((rogue.armor && rogue.armor->enchant2 == A_TIMESLIPPING && rogue.armor->lastUsed[0] == 0) 
+        && ((player.info.maxHP / 4) > (player.currentHP))) {
+        player.status[STATUS_TIMESLIPPING] = player.maxStatus[STATUS_TIMESLIPPING] = 24;
+        sprintf(buf, "your %s pulsates and stops the flow of time!", armorName);
+        runicDiscovered = true;
+        rogue.armor->lastUsed[0] = 1500; // cooldown
+        // rogue.armor->flags &= ~ITEM_RUNIC; // temporary way to balance the runic, for now
+    }
+    if (runicDiscovered && !runicKnown) {
+        autoIdentify(rogue.armor);
+    }
+    if ((rogue.armor && rogue.armor->enchant2 == A_TIMESLIPPING) // must be worn, for now
+        && !player.status[STATUS_TIMESLIPPING]) {
+            if (rogue.armor->lastUsed[0] > 0) {
+                rogue.armor->lastUsed[0]--;
+        }
+    }
     // Because decrementPlayerStatus is called only if time is normal i.e. player.ticksUntilTurn > 0,
     // timeslipping decrement code must be handled here
     if (player.status[STATUS_TIMESLIPPING]) {

@@ -1970,6 +1970,10 @@ void decrementMonsterStatus(creature *monst) {
                 break;
         }
     }
+// Disabled until a compelling cooldown based timeslipping monster is implemented
+//    if ((monst->timeslippingGate > 0) && !monst->status[STATUS_TIMESLIPPING]) {
+//        monst->timeslippingGate--;
+//    }
 
     if (monsterCanSubmergeNow(monst) && !(monst->bookkeepingFlags & MB_SUBMERGED)) {
         if (rand_percent(20)) {
@@ -3436,29 +3440,13 @@ void monstersTurn(creature *monst) {
             }
 
         // timeslipping effect
-        if ((monst->info.abilityFlags & MA_TIMESLIPS) 
-            && (monst->info.monsterID == MK_IMP)
+        if ((monst->info.abilityFlags & MA_TIMESLIPS) // only imps currently
             && (monst->timeslippingGate == 0)
             && !player.status[STATUS_TIMESLIPPING]) {
             
             monst->status[STATUS_TIMESLIPPING] = monst->maxStatus[STATUS_TIMESLIPPING] = 5;
-
             monst->timeslippingGate = 1;
         }
-
-        /*
-        if (monst->status[STATUS_TIMESLIPPING]) {
-            for (creatureIterator it = iterateCreatures(monsters); hasNextCreature(it);) {
-                creature *othermonst = nextCreature(&it);
-                if (!othermonst->status[STATUS_TIMESLIPPING]) {
-                    othermonst->ticksUntilTurn = othermonst->movementSpeed;
-                }
-                if (!player.status[STATUS_TIMESLIPPING]) {
-                    player.ticksUntilTurn = monst->status[STATUS_TIMESLIPPING] * player.movementSpeed;
-                }
-            }
-        }
-            */
 
         // if the monster is adjacent to an ally and not adjacent to the player, attack the ally
         if (distanceBetween((pos){x, y}, player.loc) > 1
