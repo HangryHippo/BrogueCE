@@ -4336,6 +4336,7 @@ static boolean updateBolt(bolt *theBolt, creature *caster, short x, short y,
                    boolean boltInView, boolean alreadyReflected,
                    boolean *autoID, boolean *lightingChanged) {
     char buf[COLS], monstName[COLS];
+    short k; // utility variable for transposition
     creature *monst; // Creature being hit by the bolt, if any.
     creature *newMonst; // Utility variable for plenty
     boolean terminateBolt = false;
@@ -4457,6 +4458,43 @@ static boolean updateBolt(bolt *theBolt, creature *caster, short x, short y,
                     }
                 }
                 break;
+            case BE_TRANSPOSITION:
+			if (monst && caster && monst != caster && !(monst->info.flags & MONST_INANIMATE)) {
+                if (monst->bookkeepingFlags & MB_CAPTIVE) {
+                    freeCaptive(monst);
+                }
+				monst->loc.x = caster->loc.x;
+				monst->loc.y = caster->loc.y;
+				caster->loc.x = x;
+				caster->loc.y = y;
+				if (monst == &player) {
+					pmap[monst->loc.x][monst->loc.y].flags |= (HAS_PLAYER);
+					pmap[monst->loc.y][monst->loc.y].flags &= ~(HAS_MONSTER);
+					pmap[caster->loc.x][caster->loc.y].flags |= (HAS_MONSTER);
+					pmap[caster->loc.x][caster->loc.y].flags &= ~(HAS_PLAYER);					
+				} else if (caster == &player) {
+					pmap[monst->loc.x][monst->loc.y].flags &= ~(HAS_PLAYER);
+					pmap[monst->loc.x][monst->loc.y].flags |= (HAS_MONSTER);
+					pmap[caster->loc.x][caster->loc.y].flags &= ~(HAS_MONSTER);
+					pmap[caster->loc.x][caster->loc.y].flags |= (HAS_PLAYER);					
+				}
+					k = monst->currentHP;
+					monst->currentHP = caster->currentHP;
+					caster->currentHP = k;
+					if (monst->currentHP > monst->info.maxHP) {
+						monst->currentHP = monst->info.maxHP;
+					}
+					if (caster->currentHP > caster->info.maxHP) {
+						caster->currentHP = caster->info.maxHP;
+					}
+				refreshDungeonCell((pos){monst->loc.x, monst->loc.y});
+				refreshDungeonCell((pos){caster->loc.x, caster->loc.y});
+				monst = caster;
+				if (autoID) {
+                    *autoID = true;
+                }
+			}
+            break;
             case BE_SLOW:
                 slow(monst, theBolt->magnitude * 5);
                 if (boltCatalog[BOLT_SLOW].backColor) {

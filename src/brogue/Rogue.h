@@ -873,6 +873,7 @@ enum wandKind {
     WAND_NEGATION,
     WAND_DOMINATION,
     WAND_BECKONING,
+    WAND_TRANSPOSITION,
     WAND_PLENTY,
     WAND_INVISIBILITY,
     WAND_EMPOWERMENT
@@ -904,6 +905,7 @@ enum boltType {
     BOLT_NEGATION,
     BOLT_DOMINATION,
     BOLT_BECKONING,
+    BOLT_TRANSPOSITION,
     BOLT_PLENTY,
     BOLT_INVISIBILITY,
     BOLT_EMPOWERMENT,
@@ -1280,6 +1282,8 @@ inline static windowpos mapToWindow(pos p) {
 #define COLOR_DIFF(f, b)         (((f).red - (b).red) * ((f).red - (b).red) * 0.2126 \
 + ((f).green - (b).green) * ((f).green - (b).green) * 0.7152 \
 + ((f).blue - (b).blue) * ((f).blue - (b).blue) * 0.0722)
+
+#define wandSwappingDistance(enchant)		((int) ((enchant) * 2 + 2)) // hard coded in zap()
 
 // structs
 
@@ -1810,6 +1814,7 @@ enum boltEffects {
     BE_NEGATION,
     BE_DOMINATION,
     BE_BECKONING,
+    BE_TRANSPOSITION,
     BE_PLENTY,
     BE_INVISIBILITY,
     BE_EMPOWERMENT,
@@ -1837,6 +1842,7 @@ enum boltFlags {
     BF_NOT_NEGATABLE                = Fl(8),    // Won't be erased by negation.
     BF_ELECTRIC                     = Fl(9),    // Activates terrain that has TM_PROMOTES_ON_ELECTRICITY
     BF_DISPLAY_CHAR_ALONG_LENGTH    = Fl(10),   // Display the character along the entire length of the bolt instead of just at the front.
+    BF_PREVENT_SWAPPING	            = Fl(11),	// wand or staff cannot be swapping
 };
 
 typedef struct bolt {
