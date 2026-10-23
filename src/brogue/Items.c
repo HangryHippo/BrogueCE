@@ -2540,8 +2540,13 @@ void itemDetails(char *buf, const item *theItem) {
                                 staffBladeCount(enchant + enchantMagnitude() * FP_FACTOR));
                         break;
                     case STAFF_DISTRACTION:
-						sprintf(buf2, "The decoys will stay alive for %i turns (If the staff is enchanted this will become %i turns.)",
+						sprintf(buf2, "%i decoy%s will be summoned for %i turns. (If the staff is enchanted, the number of decoys will %s %i and %s will last for %i turns.)",
+                                staffDecoyCount(enchant),
+                                staffDecoyCount(enchant) == 1 ? "" : "s",
 								staffDistractionDuration(enchant),
+                                staffDecoyCount(enchant + enchantMagnitude() * FP_FACTOR) > staffDecoyCount(enchant) ? "increase to" : "remain at",
+                                staffDecoyCount(enchant + enchantMagnitude() * FP_FACTOR),
+                                staffDecoyCount(enchant + enchantMagnitude() * FP_FACTOR) == 1 ? "it" : "they",
 								staffDistractionDuration(enchant + enchantMagnitude() * FP_FACTOR));
 						break;
                     case STAFF_PROTECTION:
@@ -4625,9 +4630,6 @@ static boolean updateBolt(bolt *theBolt, creature *caster, short x, short y,
                     }
                 }
                 break;
-            case BE_DISTRACTION:
-				duration = staffDistractionDuration(theBolt->magnitude * FP_FACTOR);
-				break;
             case BE_SHIELDING:
                 if (staffProtection(theBolt->magnitude * FP_FACTOR) > monst->status[STATUS_SHIELDED]) {
                     monst->status[STATUS_SHIELDED] = staffProtection(theBolt->magnitude * FP_FACTOR);
@@ -4643,8 +4645,6 @@ static boolean updateBolt(bolt *theBolt, creature *caster, short x, short y,
             default:
                 break;
         }
-
-        duration *= theBolt->magnitude;
 
         if (!(theBolt->flags & BF_PASSES_THRU_CREATURES)) {
             terminateBolt = true;
@@ -4750,9 +4750,9 @@ static void detonateBolt(bolt *theBolt, creature *caster, short x, short y, bool
             }
             break;
         case BE_DISTRACTION:
-            for (i = 0; i < 5; i++) { // have to figure out how to get quantity of decoys up
+            for (i = 0; i < (staffDecoyCount(theBolt->magnitude * FP_FACTOR)); i++) {
                 monst = generateMonster(MK_DECOY, false, false);
-                monst->status[STATUS_LIFESPAN_REMAINING] = staffDistractionDuration(theBolt->magnitude * FP_FACTOR);
+                monst->maxStatus[STATUS_LIFESPAN_REMAINING] = monst->status[STATUS_LIFESPAN_REMAINING] = staffDistractionDuration(theBolt->magnitude * FP_FACTOR);
                 monst->loc = getQualifyingPathLocNear((pos){ x, y }, true,
                                          T_DIVIDES_LEVEL & avoidedFlagsForMonster(&(monst->info)) & ~T_SPONTANEOUSLY_IGNITES, HAS_PLAYER,
                                          avoidedFlagsForMonster(&(monst->info)) & ~T_SPONTANEOUSLY_IGNITES, (HAS_PLAYER | HAS_MONSTER | HAS_STAIRS), false);
@@ -4765,6 +4765,7 @@ static void detonateBolt(bolt *theBolt, creature *caster, short x, short y, bool
 
                 monst->bookkeepingFlags |= (MB_FOLLOWER | MB_BOUND_TO_LEADER | MB_DOES_NOT_TRACK_LEADER);
                 monst->bookkeepingFlags &= ~MB_JUST_SUMMONED;
+                monst->bookkeepingFlags |= MB_DOES_NOT_RESURRECT;
                 monst->leader = &player;
                 monst->creatureState = MONSTER_ALLY;
                 monst->ticksUntilTurn = monst->info.attackSpeed + 1; // So they don't move before the player's next turn.

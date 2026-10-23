@@ -3468,6 +3468,7 @@ extern "C" {
     short staffBlinkDistance(fixpt enchant);
     short staffHasteDuration(fixpt enchant);
     short staffBladeCount(fixpt enchant);
+    short staffDecoyCount(fixpt enchant);
     short staffDistractionDuration(fixpt enchant);
     short staffDiscordDuration(fixpt enchant);
     int staffProtection(fixpt enchant);
