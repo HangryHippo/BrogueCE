@@ -1,0 +1,1 @@
+Bridges and causeways now spawn across lava and water respectively.
