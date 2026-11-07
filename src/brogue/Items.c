@@ -2067,9 +2067,7 @@ void itemDetails(char *buf, const item *theItem) {
                 }
                 strcat(buf, buf2);
                 if (strengthModifier(theItem)) {
-                    sprintf(buf2, ", %s %s %s %s%s%+.2f%s because of your %s strength. ",
-                            (theItem->enchant1 ? "and" : "but"),
-                            (singular ? "carries" : "carry"),
+                    sprintf(buf2, " with %s %s%s%+.2f%s because of your %s strength. ",
                             (theItem->enchant1 && (theItem->enchant1 > 0) == (strengthModifier(theItem) > 0) ? "an extra" : "a"),
                             (strengthModifier(theItem) > 0 ? "bonus of " : "penalty of "),
                             (strengthModifier(theItem) > 0 ? goodColorEscape : badColorEscape),
@@ -2174,7 +2172,7 @@ void itemDetails(char *buf, const item *theItem) {
 
                     new = max(0, new);
 
-                    sprintf(buf2, "Wearing it%s will result in an armor rating of %s%i%s. ",
+                    sprintf(buf2, "Wear it%s for an armor rating of %s%i%s. ",
                             ((theItem->flags & ITEM_IDENTIFIED) || rogue.playbackOmniscience) ? "" : ", assuming it has no hidden properties,",
                             (new > displayedArmorValue() ? goodColorEscape : (new < displayedArmorValue() ? badColorEscape : whiteColorEscape)),
                             new, whiteColorEscape);
@@ -2202,7 +2200,7 @@ void itemDetails(char *buf, const item *theItem) {
 
             // protected?
             if (theItem->flags & ITEM_PROTECTED) {
-                sprintf(buf2, "%sIt cannot be corroded by acid.%s",
+                sprintf(buf2, "%sIt is uncorrodable by acid.%s",
                         goodColorEscape,
                         whiteColorEscape);
                 strcat(buf, buf2);
@@ -2363,13 +2361,13 @@ void itemDetails(char *buf, const item *theItem) {
                 }
                 strcat(buf, buf2);
 
-                // general descriptions                
+                // general trait descriptions                
                 switch (theItem->enchant3) {
                     case A_PLAIN:
                         sprintf(buf2, "It is plain.");
                         break;
                     case A_STEALTH:
-                        sprintf(buf2, "You are less likely to be noticed and more likely to lose your pursuers. Staying still or hiding in darkness will make you even harder to spot. ");
+                        sprintf(buf2, "You are less likely to be noticed and more likely to lose your pursuers. Stay still or hide in darkness and you will be even harder to spot. ");
                         break;
                     case A_ARMORSMITH:
                         sprintf(buf2, "It grants armor related bonuses. ");
@@ -2394,11 +2392,11 @@ void itemDetails(char *buf, const item *theItem) {
                             sprintf(buf2, " "); // prevents repetition of "It is plain." text
                             break;
                         case A_STEALTH:
-                            sprintf(buf2, "It grants a stealth bonus of %i. Armor gain is halved.", 
+                            sprintf(buf2, "Stealth bonus: %i. Armor gain is halved.", 
                                 theItem->enchant1 >= 0 ? min(12, theItem->enchant1) : 0);
                             break;
                         case A_ARMORSMITH:
-                            if (theItem->enchant1 > 0) {                 
+                            if (theItem->enchant1 > 0) {
                                 sprintf(buf2, "One time armor bonus: +%i. Per enchantment level %i%% armor bonus: +%.2f.",
                                 ARMORSMITH_BONUS_DEFENSE / 10,
                                 ARMORSMITH_BONUS_PERCENT,
@@ -2409,10 +2407,10 @@ void itemDetails(char *buf, const item *theItem) {
                             break;
                         case A_ABSORPTION:
                             if (enchant > 0) {
-                                sprintf(buf2, "Damage reduction: 1 to %i [%i%% of your current maximum health.] (Enchant it and this maximum amount will %s %i.) ",
+                                sprintf(buf2, "Damage reduction: 1 to %i [%i%% of your current maximum health.] (Enchant it and this maximum amount will %s %i.)",
                                         (int) armorAbsorptionMax(enchant),
                                         (int) (100 * armorAbsorptionMax(enchant) / player.info.maxHP),
-                                        (armorAbsorptionMax(enchant) == armorAbsorptionMax(enchant + enchantIncrement(theItem)) ? "remain at" : "increase to"),
+                                        (armorAbsorptionMax(enchant) == armorAbsorptionMax(enchant + enchantMagnitude() * enchantIncrement(theItem)) ? "remain at" : "increase to"),
                                         (int) armorAbsorptionMax(enchant + enchantMagnitude() * enchantIncrement(theItem)));
                             } else {
                                 sprintf(buf2, "It is still too heavy.");
@@ -2425,15 +2423,15 @@ void itemDetails(char *buf, const item *theItem) {
                             break;
                         case A_MANGLE:
                             if (enchant > 0) {
-                                sprintf(buf2, "Mangle damage: %i%% of the enemy's own damage. (Enchant it and the percentage will %s %i%%.)",
+                                sprintf(buf2, "Mangle damage: %i%% of the enemy's own damage. (Enchant it and this will %s %i%%.)",
                                         armorManglePercent(enchant),
-                                        (armorManglePercent(enchant) == armorManglePercent(enchant + enchantIncrement(theItem)) ? "remain at" : "increase to"),
+                                        (armorManglePercent(enchant) == armorManglePercent(enchant + enchantMagnitude() * enchantIncrement(theItem)) ? "remain at" : "increase to"),
                                         (armorManglePercent(enchant + enchantMagnitude() * enchantIncrement(theItem))));
                             } else {
                                 sprintf(buf2, "It is still too heavy.");
                                     if (enchant == 0) {
                                         strcat(buf, buf2);
-                                        sprintf(buf2, " (Enchant it and enemies will be wounded by %i%% of their own damage.) ",
+                                        sprintf(buf2, " (Enchant it and enemies will be wounded for %i%% of their own damage.) ",
                                                 (armorManglePercent(enchant + enchantMagnitude() * enchantIncrement(theItem))));
                                     }
                             }
@@ -2454,7 +2452,7 @@ void itemDetails(char *buf, const item *theItem) {
                                 sprintf(buf2, "It is still too heavy.");
                                     if (enchant == 0) {
                                         strcat(buf, buf2);
-                                        sprintf(buf2, " (Enchant it and it will deflect %i%% of incoming spells and reflect them back %i%% of the time.)",
+                                        sprintf(buf2, " (Enchant it to deflect %i%% and reflect back %i%% of incoming spells.)",
                                                 reflectChance2,
                                                 (reflectChance2 * reflectChance2 / 100));
                                     }
@@ -2470,52 +2468,52 @@ void itemDetails(char *buf, const item *theItem) {
                 // runic?
                 if (theItem->flags & ITEM_RUNIC) {
                     if ((theItem->flags & ITEM_RUNIC_IDENTIFIED) || rogue.playbackOmniscience) {
-                        sprintf(buf2, "\n\nGlowing runes of %s adorn the %s. ",
-                                armorRunicNames[theItem->enchant2],
-                                theName);
+                        sprintf(buf2, "\n\nThe %s has the %s runic. ",
+                                theName,
+                                armorRunicNames[theItem->enchant2]);
                         strcat(buf, buf2);
 
                         // A_MULTIPLICITY, A_MUTUALITY, A_IMMUNITY, A_RESPIRATION, A_DAMPENING, A_BURDEN, A_VULNERABILITY, A_IMMOLATION
                         switch (theItem->enchant2) {
                             case A_MULTIPLICITY:
-                                sprintf(buf2, "When worn, 33%% of the time that an enemy's attack misses, %i allied spectral duplicate%s of your attacker will appear for 3 turns. ",
+                                sprintf(buf2, "When worn, 33%% of the time an enemy's attack misses, %i allied spectral image%s of your attacker will appear for 3 turns. ",
                                         armorImageCount(enchant),
                                         (armorImageCount(enchant) == 1 ? "" : "s"));
                                 if (armorImageCount(enchant + enchantMagnitude() * enchantIncrement(theItem)) > armorImageCount(enchant)) {
-                                    sprintf(buf3, "(If it is enchanted, the number of duplicates will increase to %i.) ",
+                                    sprintf(buf3, "(Enchant it and the number of images will increase to %i.)",
                                             (armorImageCount(enchant + enchantMagnitude() * enchantIncrement(theItem))));
                                     strcat(buf2, buf3);
                                 }
                                 break;
                             case A_MUTUALITY:
-                                strcpy(buf2, "When worn, the damage that you incur from physical attacks will be split evenly among yourself and all other adjacent enemies. ");
+                                strcpy(buf2, "When worn, the damage that you incur from physical attacks will be split evenly among yourself and all other adjacent enemies.");
                                 break;
                             case A_IMMUNITY:
                                 describeMonsterClass(buf3, theItem->vorpalEnemy, false);
-                                sprintf(buf2, "It offers complete protection from any attacking %s. ",
+                                sprintf(buf2, "It completely protects against any attacking %s.",
                                         buf3);
                                 break;
                             case A_RESPIRATION:
-                                strcpy(buf2, "When worn, it will maintain a pocket of fresh air around you, rendering you immune to the effects of steam and all toxic gases. ");
+                                strcpy(buf2, "When worn, it will maintain a pocket of fresh air around you, rendering you immune to the effects of steam and all toxic gases.");
                                 break;
                             case A_DAMPENING:
-                                strcpy(buf2, "When worn, it will safely absorb the concussive impact of any explosions (though you may still be burned). ");
+                                strcpy(buf2, "When worn, it will safely absorb the concussive impact of any explosions (though you may still be burned).");
                                 break;
                             case A_BURDEN:
-                                strcpy(buf2, "10% of the time it absorbs a blow, its strength requirement will permanently increase. ");
+                                strcpy(buf2, "10% of the time it absorbs a blow, its strength requirement will permanently increase.");
                                 break;
                             case A_VULNERABILITY:
-                                strcpy(buf2, "While it is worn, inbound attacks will inflict twice as much damage. ");
+                                strcpy(buf2, "While it is worn, inbound attacks will inflict twice as much damage.");
                                 break;
                             case A_IMMOLATION:
-                                strcpy(buf2, "10% of the time it absorbs a blow, it will explode in flames. ");
+                                strcpy(buf2, "10% of the time it absorbs a blow, it will explode in flames.");
                                 break;
                             default:
                                 break;
                         }
                         strcat(buf, buf2);
                     } else if (theItem->flags & ITEM_IDENTIFIED) {
-                        sprintf(buf2, "\n\nGlowing runes of an indecipherable language spiral around the %s. ",
+                        sprintf(buf2, "\n\nGlowing runes of an indecipherable language spiral around the %s.",
                                 theName);
                         strcat(buf, buf2);
                     }
@@ -2523,13 +2521,13 @@ void itemDetails(char *buf, const item *theItem) {
 
                 // equipped? cursed?
                 if (theItem->flags & ITEM_EQUIPPED) {
-                    sprintf(buf2, "\n\nYou are wearing the %s%s. ",
+                    sprintf(buf2, "\n\nYou are wearing the %s%s.",
                             theName,
                             ((theItem->flags & ITEM_CURSED) ? ", and because it is cursed, you are powerless to remove it" : ""));
                     strcat(buf, buf2);
                 } else if (((theItem->flags & (ITEM_IDENTIFIED | ITEM_MAGIC_DETECTED)) || rogue.playbackOmniscience)
                            && (theItem->flags & ITEM_CURSED)) {
-                    sprintf(buf2, "\n\n%sYou can feel a malevolent magic lurking within the %s.%s ",
+                    sprintf(buf2, "\n\n%sYou can feel a malevolent magic lurking within the %s.%s",
                             badColorEscape,
                             theName,
                             whiteColorEscape);
