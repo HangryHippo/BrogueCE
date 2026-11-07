@@ -2070,7 +2070,7 @@ void itemDetails(char *buf, const item *theItem) {
                     sprintf(buf2, ", %s %s %s %s%s%+.2f%s because of your %s strength. ",
                             (theItem->enchant1 ? "and" : "but"),
                             (singular ? "carries" : "carry"),
-                            (theItem->enchant1 && (theItem->enchant1 > 0) == (strengthModifier(theItem) > 0) ? "an additional" : "a"),
+                            (theItem->enchant1 && (theItem->enchant1 > 0) == (strengthModifier(theItem) > 0) ? "an extra" : "a"),
                             (strengthModifier(theItem) > 0 ? "bonus of " : "penalty of "),
                             (strengthModifier(theItem) > 0 ? goodColorEscape : badColorEscape),
                             strengthModifier(theItem) / (double) FP_FACTOR,
@@ -2174,21 +2174,11 @@ void itemDetails(char *buf, const item *theItem) {
 
                     new = max(0, new);
 
-                    sprintf(buf2, "Wearing the %s%s will result in an armor rating of %s%i%s. ",
-                            theName,
+                    sprintf(buf2, "Wearing it%s will result in an armor rating of %s%i%s. ",
                             ((theItem->flags & ITEM_IDENTIFIED) || rogue.playbackOmniscience) ? "" : ", assuming it has no hidden properties,",
                             (new > displayedArmorValue() ? goodColorEscape : (new < displayedArmorValue() ? badColorEscape : whiteColorEscape)),
                             new, whiteColorEscape);
                 }
-                strcat(buf, buf2);
-            }
-
-            // protected?
-            if (theItem->flags & ITEM_PROTECTED) {
-                sprintf(buf2, "%sThe %s cannot be corroded by acid.%s ",
-                        goodColorEscape,
-                        theName,
-                        whiteColorEscape);
                 strcat(buf, buf2);
             }
 
@@ -2202,11 +2192,18 @@ void itemDetails(char *buf, const item *theItem) {
                 if (rogue.armor) {
                     new -= armorStealthAdjustment(rogue.armor);
                 }
-                sprintf(buf2, "Equipping the %s will %s%s your stealth range by %i%s. ",
-                        theName,
+                sprintf(buf2, "Wearing it will %s%s your stealth range by %i%s. ",
                         new > 0 ? badColorEscape : goodColorEscape,
                         new > 0 ? "increase" : "decrease",
                         abs(new),
+                        whiteColorEscape);
+                strcat(buf, buf2);
+            }
+
+            // protected?
+            if (theItem->flags & ITEM_PROTECTED) {
+                sprintf(buf2, "%sIt cannot be corroded by acid.%s",
+                        goodColorEscape,
                         whiteColorEscape);
                 strcat(buf, buf2);
             }
@@ -2366,37 +2363,35 @@ void itemDetails(char *buf, const item *theItem) {
                 }
                 strcat(buf, buf2);
 
-                // general descriptions when unidentified
-                if (!(theItem->flags & ITEM_IDENTIFIED) && theItem->enchant3 != A_STEALTH) {
-                    switch (theItem->enchant3) {
-                        case A_PLAIN:
-                            sprintf(buf2, "It is plain.");
-                            break;
-                        case A_ARMORSMITH:
-                            sprintf(buf2, "It grants armor related bonuses. ");
-                            break;
-                        case A_ABSORPTION:
-                            sprintf(buf2, "It reduces inbound attack damage. ");
-                            break;
-                        case A_MANGLE:
-                            sprintf(buf2, "It punishes enemy misses. ");
-                            break;
-                        case A_REFLECTION:
-                            sprintf(buf2, "It deflects and reflects back incoming spells. ");
-                            break;
-                        default:
-                            break;
-                    }
-                    strcat(buf, buf2);
-                } else if (theItem->enchant3 == A_STEALTH) { // always describe stealth whether IDed or UnIDed
-                    sprintf(buf2, "You are less likely to be noticed and more likely to lose your pursuers. Staying still or hiding in darkness will make you even harder to spot. ");
-                    strcat(buf, buf2);
+                // general descriptions                
+                switch (theItem->enchant3) {
+                    case A_PLAIN:
+                        sprintf(buf2, "It is plain.");
+                        break;
+                    case A_STEALTH:
+                        sprintf(buf2, "You are less likely to be noticed and more likely to lose your pursuers. Staying still or hiding in darkness will make you even harder to spot. ");
+                        break;
+                    case A_ARMORSMITH:
+                        sprintf(buf2, "It grants armor related bonuses. ");
+                        break;
+                    case A_ABSORPTION:
+                        sprintf(buf2, "It reduces inbound attack damage. ");
+                        break;
+                    case A_MANGLE:
+                        sprintf(buf2, "It punishes enemy misses. ");
+                        break;
+                    case A_REFLECTION:
+                        sprintf(buf2, "It deflects and reflects back incoming spells. ");
+                        break;
+                    default:
+                        break;
                 }
+                strcat(buf, buf2);
 
                 if (theItem->flags & ITEM_IDENTIFIED) {
                     switch (theItem->enchant3) {
                         case A_PLAIN:
-                            sprintf(buf2, "It is plain.");
+                            sprintf(buf2, " "); // prevents repetition of "It is plain." text
                             break;
                         case A_STEALTH:
                             sprintf(buf2, "It grants a stealth bonus of %i. Armor gain is halved.", 
@@ -2404,45 +2399,41 @@ void itemDetails(char *buf, const item *theItem) {
                             break;
                         case A_ARMORSMITH:
                             if (theItem->enchant1 > 0) {                 
-                                sprintf(buf2, "It provides a one time armor bonus of +%i. It provides an additional %i%% armor bonus per level of enchantment: +%.2f.",
+                                sprintf(buf2, "One time armor bonus: +%i. Per enchantment level %i%% armor bonus: +%.2f.",
                                 ARMORSMITH_BONUS_DEFENSE / 10,
                                 ARMORSMITH_BONUS_PERCENT,
                                 (float) theItem->enchant1 / 2);
                             } else {
-                                sprintf(buf2, "It is too heavy.");
+                                sprintf(buf2, "It is still too heavy.");
                             }
                             break;
                         case A_ABSORPTION:
                             if (enchant > 0) {
-                                sprintf(buf2, "It will reduce the damage of inbound attacks by a random amount between 1 and %i, which is %i%% of your current maximum health. (If the %s is enchanted, this maximum amount will %s %i.) ",
+                                sprintf(buf2, "Damage reduction: 1 to %i [%i%% of your current maximum health.] (Enchant it and this maximum amount will %s %i.) ",
                                         (int) armorAbsorptionMax(enchant),
                                         (int) (100 * armorAbsorptionMax(enchant) / player.info.maxHP),
-                                        theName,
                                         (armorAbsorptionMax(enchant) == armorAbsorptionMax(enchant + enchantIncrement(theItem)) ? "remain at" : "increase to"),
                                         (int) armorAbsorptionMax(enchant + enchantMagnitude() * enchantIncrement(theItem)));
                             } else {
-                                sprintf(buf2, "It is too heavy.");
+                                sprintf(buf2, "It is still too heavy.");
                                     if (enchant == 0) {
                                         strcat(buf, buf2);
-                                        sprintf(buf2, " (If the %s is enchanted, damage will be reduced by a random amount between 1 to %i.)",
-                                                theName,
+                                        sprintf(buf2, " (Enchant it and damage will be reduced by a random amount between 1 and %i.)",
                                                 (int) armorAbsorptionMax(enchant + enchantMagnitude() * enchantIncrement(theItem)));
                                     }
                             }
                             break;
                         case A_MANGLE:
                             if (enchant > 0) {
-                                sprintf(buf2, "It will punish enemy misses for %i%% of their own damage. (If the %s is enchanted, this percentage will %s %i%%.)",
+                                sprintf(buf2, "Mangle damage: %i%% of the enemy's own damage. (Enchant it and the percentage will %s %i%%.)",
                                         armorManglePercent(enchant),
-                                        theName,
                                         (armorManglePercent(enchant) == armorManglePercent(enchant + enchantIncrement(theItem)) ? "remain at" : "increase to"),
                                         (armorManglePercent(enchant + enchantMagnitude() * enchantIncrement(theItem))));
                             } else {
-                                sprintf(buf2, "It is too heavy.");
+                                sprintf(buf2, "It is still too heavy.");
                                     if (enchant == 0) {
                                         strcat(buf, buf2);
-                                        sprintf(buf2, " (If the %s is enchanted, enemies will be wounded by %i%% of their own damage.) ",
-                                                theName,
+                                        sprintf(buf2, " (Enchant it and enemies will be wounded by %i%% of their own damage.) ",
                                                 (armorManglePercent(enchant + enchantMagnitude() * enchantIncrement(theItem))));
                                     }
                             }
@@ -2451,21 +2442,19 @@ void itemDetails(char *buf, const item *theItem) {
                             if (enchant > 0) {
                                 short reflectChance = reflectionChance(enchant);
                                 short reflectChance2 = reflectionChance(enchant + enchantMagnitude() * enchantIncrement(theItem));
-                                sprintf(buf2, "When worn, you will deflect %i%% of incoming spells -- including directly back at their source %i%% of the time. (If the %s is enchanted, these will %s %i%% and %i%%.)",
+                                sprintf(buf2, "Deflect chance: %i%%. Reflect chance: %i%%. (Enchant it and these will %s %i%% and %i%%.)",
                                         reflectChance,
                                         (reflectChance * reflectChance / 100),
-                                        theName,
                                         (reflectChance == reflectChance2 ? "remain at" : "increase to"),
                                         reflectChance2,
                                         (reflectChance2 * reflectChance2 / 100));
                             } else {
                                 // declared twice because of reports MacOS won't compile if placed outside the conditional branch
                                 short reflectChance2 = reflectionChance(enchant + enchantMagnitude() * enchantIncrement(theItem));
-                                sprintf(buf2, "It is too heavy.");
+                                sprintf(buf2, "It is still too heavy.");
                                     if (enchant == 0) {
                                         strcat(buf, buf2);
-                                        sprintf(buf2, " (If the %s is enchanted, it will deflect %i%% of incoming spells and reflect them back %i%% of the time.)",
-                                                theName,
+                                        sprintf(buf2, " (Enchant it and it will deflect %i%% of incoming spells and reflect them back %i%% of the time.)",
                                                 reflectChance2,
                                                 (reflectChance2 * reflectChance2 / 100));
                                     }
