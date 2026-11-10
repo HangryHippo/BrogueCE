@@ -759,16 +759,13 @@ void magicWeaponHit(creature *defender, item *theItem, boolean backstabbed) {
                 autoID = forceWeaponHit(defender, theItem);
                 break;
             case W_POISON:
-                if (theItem->flags & ITEM_ATTACKS_STAGGER) {
-                    addPoison(defender, defender->info.maxHP, 2);
-                } else if (theItem->flags & ITEM_ATTACKS_QUICKLY) {
-                    addPoison(defender, defender->info.maxHP / 2, 1);
-                } else {
-                    addPoison(defender, defender->info.maxHP, 1);
+                addPoison(defender, defender->info.maxHP, 1);
+                if (canDirectlySeeMonster(defender)) {
+                    sprintf(buf, "%s is poisoned", monstName);
+                    buf[DCOLS] = '\0';
+                    combatMessage(buf, messageColorFromVictim(defender));
+                    autoID = true;
                 }
-                sprintf(buf, "%s is poisoned", monstName);
-                buf[DCOLS] = '\0';
-                combatMessage(buf, messageColorFromVictim(defender));
                 break;
             case W_MERCY:
                 heal(defender, gameConst->onHitMercyHealPercent, false);

@@ -2266,8 +2266,7 @@ void itemDetails(char *buf, const item *theItem) {
                                         nextLevelState = weaponForceDistance(enchant + enchantMagnitude() * enchantIncrement(theItem));
                                         break;
                                     case W_POISON:
-                                        sprintf(buf2, " with %s of lethal venom. ", 
-                                                theItem->flags & ITEM_ATTACKS_QUICKLY ? "half a dose" : theItem->flags & ITEM_ATTACKS_STAGGER ? "two doses" : "one dose");
+                                        sprintf(buf2, " with a dose of lethal venom. ");
                                         strcat(buf, buf2);
                                         break;
                                     case W_MERCY:

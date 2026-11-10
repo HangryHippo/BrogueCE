@@ -330,13 +330,11 @@ short runicWeaponChance(const item *theItem, boolean customEnchantLevel, fixpt e
     }
 
     // Slow weapons get an adjusted chance of 1 - (1-p)^2 to reflect two bites at the apple instead of one.
-    // except poison which applies twice the effect so doesn't need a boosted chance
-    if ((theItem->flags & ITEM_ATTACKS_STAGGER) && runicType != W_POISON) {
+    if (theItem->flags & ITEM_ATTACKS_STAGGER) {
         chance = 100 - (100 - chance) * (100 - chance) / 100;
     }
     // Fast weapons get an adjusted chance of 1 - sqrt(1-p) to reflect one bite at the apple instead of two.
-    // except poison which applies half the effect so doesn't need a reduced chance
-    if ((theItem->flags & ITEM_ATTACKS_QUICKLY) && runicType != W_POISON) {
+    if (theItem->flags & ITEM_ATTACKS_QUICKLY) {
         chance = 100 * (FP_FACTOR - fp_sqrt(FP_FACTOR - (chance * FP_FACTOR)/100)) / FP_FACTOR;
     }
 
